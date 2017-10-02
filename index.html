@@ -2,12 +2,22 @@
 <html>
     <head>
         <style type="text/css">
+                @font-face {
+                font-family: 'youngserifregular';
+                src: url('webfonts/YoungSerif-Regular.eot'); /* IE9 Compat Modes */
+                src: url('webfonts/YoungSerif-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+                    url('webfonts/YoungSerif-Regular.woff2') format('woff2'), /* Super Modern Browsers */
+                    url('webfonts/YoungSerif-Regular.woff') format('woff'), /* Pretty Modern Browsers */
+                    url('webfonts/YoungSerif-Regular.ttf')  format('truetype'), /* Safari, Android, iOS */
+                    url('webfonts/YoungSerif-Regular.svg') format('svg'); /* Legacy iOS */
+}
+            
             body {
                 display: flex;
                 background: #abf5ca;
                 -moz-osx-font-smoothing: grayscale;
                 -webkit-font-smoothing: antialiased;
-                font-family: 'YoungSerif', serif;
+                font-family: 'youngserifregular', serif;
                 font-size: 40px;
                 line-height: 80px;
                 color: #6741e6;
