@@ -281,7 +281,7 @@
     
     h1 { font-size: 26px; line-height: 29px; margin: 0px 0 0 0; }
     
-    #welcome { margin-bottom: 0px;}
+    #welcome { margin-bottom: 20px; margin-left: 20px;}
     #bio { margin: 20px;}
 
     .third { width: 100%; }
@@ -292,6 +292,8 @@
 }
 
 @media only screen and (max-width: 760px) {
+    
+    #welcome { margin-bottom: 0; }
  
     .half { width: 100%; }
     
