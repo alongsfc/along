@@ -1,115 +1,392 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Austin Long, Communications Designer</title>
+    <meta name="description" content="Austin Long is a communications designer in San Francisco">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <style type="text/css">
+        @font-face {
+            font-family: 'League Gothic';
+            src: url('webfonts/leaguegothic-regular-webfont.eot');
+            src: url('webfonts/leaguegothic-regular-webfont.eot?#iefix') format('embedded-opentype'),
+                 url('webfonts/leaguegothic-regular-webfont.woff') format('woff'),
+                 url('webfonts/leaguegothic-regular-webfont.ttf') format('truetype'),
+                 url('webfonts/leaguegothic-regular-webfont.svg#league_gothicregular') format('svg');
+            font-weight: normal;
+            font-style: normal;
+
+        }
+        
+        @font-face {
+                font-family: 'youngserifregular';
+                src: url('webfonts/YoungSerif-Regular.eot'); /* IE9 Compat Modes */
+                src: url('webfonts/YoungSerif-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+                    url('webfonts/YoungSerif-Regular.woff2') format('woff2'), /* Super Modern Browsers */
+                    url('webfonts/YoungSerif-Regular.woff') format('woff'), /* Pretty Modern Browsers */
+                    url('webfonts/YoungSerif-Regular.ttf')  format('truetype'), /* Safari, Android, iOS */
+                    url('webfonts/YoungSerif-Regular.svg') format('svg'); /* Legacy iOS */
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            overflow: hidden;
+        }
+        
+        section {
+            height: 100vh;
+            width: 100vw;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                    justify-content: center;
+            -webkit-box-align: center;
+                -ms-flex-align: center;
+                    align-items: center;
+        }
+        
+        .splash { 
+            background: #1a1a1a;
+            color: white;
+            position: absolute;
+            margin-right: 0;
+            -webkit-transition: margin-right 0.5s ease-in-out;
+            -o-transition: margin-right 0.5s ease-in-out;
+            transition: margin-right 0.5s ease-in-out;
+        }
+        
+        .splash-open {
+            margin-right: 100%;
+        }
+        
+        .splash h1, .splash p { margin: 0; white-space: nowrap;}
+        
+        .sticker, .back { cursor: pointer;}
+        
+        .about {
+            background: #FFF67E;
+            color: black;
+            position: absolute;
+            z-index: 3;
+            top: 0;
+            left: 0;
+            margin-left: 100%;
+            -webkit-transition: margin-left 0.5s ease-in-out;
+            -o-transition: margin-left 0.5s ease-in-out;
+            transition: margin-left 0.5s ease-in-out;
+            padding-left: 45px;
+        }
+        
+        .about-open {
+            margin-left: 0%;
+        }
+        
+        .about div:first-child {
+            max-width: 420px;
+            position: relative;
+        }
+        
+        .about h1 {
+            font-size: 58px;
+            -webkit-transform: rotate(90deg);
+                -ms-transform: rotate(90deg);
+                    transform: rotate(90deg);
+            position: absolute;
+            top: 58px;
+            left: -160px;
+        }
+        
+        h1::-moz-selection { background: blue; }
+        h1::selection { background: blue; }
+        p::-moz-selection { background: red; }
+        p::selection { background: red; }
+        ::-moz-selection { background: #FFF67E; }
+        ::selection { background: #FFF67E; }
+        
+        h1 {
+            font-family: 'League Gothic';
+            font-size: 30px;
+            line-height: 30px;
+            text-transform: uppercase;
+            font-weight: normal;
+        }
+        
+        h2 {
+            font-family: 'League Gothic', sans-serif;
+            font-size: 24px;
+            text-transform: uppercase;
+            font-weight: normal;
+        }
+        
+        p {
+            font-family: 'youngserifregular', 'youngserif', serif;
+            font-size: 16px;
+            line-height: 20px;
+            
+        }
+        
+        .flag {
+            display: -ms-grid;
+            display: grid;
+                -ms-grid-columns: auto auto;
+                grid-template-columns: auto auto;
+                -ms-grid-rows: 120px 150px;
+                grid-template-rows: 120px 150px;
+                grid-template-areas: 
+                "top-left right"
+                "bottom-left right";
+            position: relative;
+        }
+        
+        @-webkit-keyframes spin {
+            from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+            to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+        }
+        
+        @keyframes spin {
+            from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+            to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+        }
+        
+        .sticker {
+            width: 120px;
+            position: absolute;
+            bottom: -20px;
+            right: -50px;
+            z-index: 2;
+            -webkit-animation: spin 5s linear infinite forwards paused;
+                    animation: spin 5s linear infinite forwards paused;
+        }
+           
+        .sticker:hover {
+            width: 119px;
+            -webkit-animation: spin 5s linear infinite forwards running;
+                    animation: spin 5s linear infinite forwards running;
+           }
+        
+        .sticker:active {
+            width: 118px;
+        }
+        
+        .top-left {
+            -webkit-transform: rotate(90deg);
+                -ms-transform: rotate(90deg);
+                    transform: rotate(90deg);
+            -ms-grid-row: 1;
+            -ms-grid-column: 1;
+            grid-area: top-left;
+            height: 214px;
+            width: 200px;
+        }
+        
+        .bottom-left {
+            -ms-grid-row: 2;
+            -ms-grid-column: 1;
+            grid-area: bottom-left;
+            height: auto;
+            padding-right: 4px;
+        }
+        
+        .right {
+            -ms-grid-row: 1;
+            -ms-grid-row-span: 2;
+            -ms-grid-column: 2;
+            grid-area: right;
+        }
+        
+        @media (max-width: 600px) {
+            
+            .top-left {
+                        -ms-grid-row: 1;
+                        -ms-grid-column: 1;
+            }
+            
+            .bottom-left {
+                        -ms-grid-row: 1;
+                        -ms-grid-column: 2;
+            }
+            
+            .right {
+                        -ms-grid-row: 2;
+                        -ms-grid-column: 1;
+                        -ms-grid-column-span: 2;
+            }
+        }
+        
+        .social {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+                -ms-flex-align: center;
+                    align-items: center;
+        }
+        
+        .social a { 
+            margin-right: 20px;
+            opacity: 0.2;
+            -webkit-transition: opacity 0.25s;
+            -o-transition: opacity 0.25s;
+            transition: opacity 0.25s;
+        }
+        
+        .social a:hover {
+            opacity: 1;
+        }
+        
+        @media (max-width: 600px) {
+            
+            .flag {
+                display: -ms-grid;
+                display: grid;
+                    -ms-grid-columns: auto auto;
+                    grid-template-columns: auto auto;
+                    -ms-grid-rows: 220px 226px;
+                    grid-template-rows: 220px 226px;
+                    grid-template-areas: 
+                    "top-left bottom-left"
+                    "right right";
+                position: relative;
+            }
+            
+            .top-left {
+                -webkit-transform: rotate(0deg);
+                    -ms-transform: rotate(0deg);
+                        transform: rotate(0deg);
+                height: 0;
+                width: 0;
+                margin: 2px 10px 0 -10px;
+            }
+
+            .bottom-left {
+                -webkit-transform: rotate(90deg);
+                    -ms-transform: rotate(90deg);
+                        transform: rotate(90deg);
+                -ms-grid-row: 2;
+                -ms-grid-column: 1;
+                grid-area: bottom-left;
+                height: auto;
+                padding-right: 0px;
+            }
+
+            .right {
+                -webkit-transform: rotate(90deg);
+                    -ms-transform: rotate(90deg);
+                        transform: rotate(90deg);
+                -ms-grid-row: 1;
+                -ms-grid-row-span: 2;
+                -ms-grid-column: 2;
+                grid-area: right;
+            }
+            
+            .about {
+                padding-left: 0;
+            }
+            
+            .about div:first-child { 
+                padding: 0 30px;
+            }
+            
+            .about h1 {
+                -webkit-transform: rotate(0deg);
+                    -ms-transform: rotate(0deg);
+                        transform: rotate(0deg);
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
     
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Austin Long &mdash; Graphic Design</title>
-        <meta name="description" content="Austin Long is a communications designer in San Francisco">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-33443044-1', 'auto');
+      ga('send', 'pageview');
+    </script>
         
-        <link rel="stylesheet" type="text/css" href="style.css">
-        <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700" rel="stylesheet">
-        <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
-        <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
-        <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
-        <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
-        <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
-        <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
-        <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
-        <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
-        <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-        <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
-        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
-        <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-        <link rel="manifest" href="/manifest.json">
-        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-        <meta name="msapplication-TileColor" content="#da532c">
-        <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-        <meta name="theme-color" content="#ffffff">
-        
-        <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-33443044-1', 'auto');
-  ga('send', 'pageview');
-
-        </script>
-        
-        <script>
-document.addEventListener("touchstart", function(){}, true);
-</script>
-        
-    </head>
-    <body>
-        
-        
-
-        <div id="container">
-            <div class="half">
-                <figure class="text" id="welcome">
-                    <h1>Austin Long<br>is a designer<br>in San Francisco.</h1>
-                </figure>
+    <script>
+        document.addEventListener("touchstart", function(){}, true);
+    </script>
+</head>
+<body>
+    <section class="splash">
+        <div class="flag">
+            <img class="sticker" src="sticker.svg">
+            <div class="top-left">
+                <h1>Austin Long</h1>
+                <h1>Austin Long</h1>
+                <h1>Austin Long</h1>
+                <h1>Austin Long</h1>
+                <h1>Austin Long</h1>
+                <h1>Austin Long</h1>
+                <h1>Austin Long</h1>
             </div>
-            
-            <div class="half">
-               <figure class="text" id="bio">
-                    <p>I'm currently working with a startup called <a href="http://www.zenreach.com/" target="_blank">Zenreach</a>. Previously, I worked in-house at <a href="http://www.moshi.com/" target="_blank">Moshi</a>. Additionally, I’ve done contract work with TalkIQ, Rintaro, Metrowize, and the Museum of Monterey, among&nbsp;others.</p>
-                </figure>
+            <div class="right">
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
+                <p>in San Francisco, California</p>
             </div>
-            
-            <hr />
-            
-            <div id="first" class="half">
-                    <figure class="red">
-                        <div class="overlay">
-                            <h2>Work in Progress</h2>
-                            <p><a class="boxed" href="#">Check Back Later</a></p>
-                        </div>
-                        <img src="img/thumbnails/z-coming-soon.png">
-                    </figure>
+            <div class="bottom-left">
+                <p>Communications Designer</p>
+                <p>Communications Designer</p>
+                <p>Communications Designer</p>
+                <p>Communications Designer</p>
+                <p>Communications Designer</p>
+                <p>Communications Designer</p>
             </div>
-            
-            <div class="half">
-                    <figure class="purple">
-                        <div class="overlay">
-                            <h2>Brand Identity for&nbsp;Moshi</h2>
-                            <p><a class="boxed" href="moshi-identity.html">View Project</a></p>
-                        </div>
-                        <img src="img/thumbnails/identity.png">
-                    </figure>
-            </div>
-            
-            <div class="two-thirds">
-                    <figure class="yellow">
-                        <div class="overlay">
-                            <h2>Brand Identity for Make it&nbsp;Funky</h2>
-                            <p><a class="boxed" href="make-it-funky-identity.html">View Project</a></p>
-                        </div>
-                        <img src="img/thumbnails/funky.jpg">
-                    </figure>
-            </div>
-            
-             <div class="third">
-                    <figure class="off-white">
-                            <div class="overlay">
-                                <h2>Product Design for&nbsp;Moshi</h2>
-                                <p><a class="boxed" href="ui-ux.html">View Project</a></p>
-                            </div>
-                        <img src="img/thumbnails/moshi-interface.jpg">
-                    </figure>
-            </div>
-            
-            <footer>
-                <!-- 
-                <a id="resume-link" href="http://alonglook.com/austin-long-designer-resume.pdf" download>Download Resum&eacute;</a> -->
-                <a class="social" href="https://dribbble.com/alonglook" target="_blank"><img src="img/dribbble.svg" alt="dribbble logo" width="24" height="24"></a>
-                <a class="social" href="https://www.instagram.com/alonglook/" target="_blank"><img src="img/instagram.svg" alt="instagram logo" width="24" height="24"></a>
-        </footer>
         </div>
-    </body>
-</html>
+    </section>
+    <section class="about">
+        <div>
+            <h1>Austin Long</h1>
+            <p>If your messaging doesn’t make sense, your business doesn’t seem trustworthy, or your brand isn’t likable—you’re going to fail. I’m good at making sure that doesn’t happen. As a designer, my job is to help people communicate ideas across screens, surfaces and physical spaces. So far, I've worked with a few big companies, several startups and a bunch of independent businesses to do that.</p>
+            <div class="social">
+                <a class="back"><img src="back.svg"></a>
+                <a href="https://www.instagram.com/alonglook/"><img src="instagram.svg"></a>
+                <a href="https://dribbble.com/alonglook"><img src="dribbble.svg"></a>
+                <a href="https://www.linkedin.com/in/alonglook/"><img src="linkedin.svg"></a>
+            </div>
+            
+        </div>
+    </section>
+    
+    <script
+  src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+  crossorigin="anonymous"></script>
+    <script>
+        //About
+        $(".sticker").click(function(){
+        $(".about").toggleClass("about-open");
+        $(".splash").toggleClass("splash-open");
+        });
+        
+        $(".back").click(function(){
+        $(".about").toggleClass("about-open");
+        $(".splash").toggleClass("splash-open");
+        });
+        
+        //Remove Widows
+        $('h1,h2,h3,li,p').each(function() {
+            $(this).html($(this).html().replace(/\s([^\s<]+)\s*$/,'&nbsp;$1'));
+        });
+    </script>
+</body>
