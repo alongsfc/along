@@ -90,6 +90,12 @@ em {
   text-align: center;
 }
 
+.new-hero {
+    padding: 16px 16px;
+    background: white;
+    color: black;
+}
+
 .hero.rintaro-hero {
   background-image: url('../images/rintaro-home.jpg');
   background-position: 50% 50%;
@@ -220,6 +226,24 @@ em {
   border-bottom: 1px solid #000;
   background-color: hsla(25.71428571428561, 30.43%, 95.49%, 1.00);
   font-size: 10px;
+}
+
+.big-project-card-image.las-palmas-thumb {
+  background-image: url('../images/lp-hat.jpg');
+  background-position: 50% 50%;
+  background-size: cover;
+}
+
+.big-project-card-image.square-thumb {
+  background-image: url('../images/square-placeholder.svg');
+  background-position: 50% 50%;
+  background-size: cover;
+}
+
+.big-project-card-image.roadtrip-postcards-thumb {
+  background-image: url('../images/frontera.jpg');
+  background-position: 50% 50%;
+  background-size: cover;
 }
 
 .big-project-card-image.east-wind-thumb {
@@ -848,6 +872,12 @@ em {
 
 .icon.write-up {
   background-image: url('../images/write-up.svg');
+  background-position: 50% 50%;
+  background-size: cover;
+}
+
+.icon.download {
+  background-image: url('../images/download.svg');
   background-position: 50% 50%;
   background-size: cover;
 }
