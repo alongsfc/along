@@ -1,0 +1,252 @@
+/* CSS styles go here */
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: #101D1A;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    padding: 20px 0 0 0;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+h1, em, li {
+    font-family: 'Fraunces', sans-serif;
+    font-weight: 100;
+    color: #fff;
+    padding: 0;
+}
+
+h1 { 
+    font-size: 44px;
+    line-height: 0.95em;
+    letter-spacing: -0.04em; 
+    margin: 0;
+    text-wrap: balance;
+}
+
+li, em {
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 300;
+}
+
+p {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+    line-height: 27px;
+    color: #fff;
+    margin: 0 0 24px 0;
+    max-width: 640px;
+}
+
+p:first-of-type {
+    margin: 0;
+}
+
+a { 
+    color: inherit; 
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgba(255,255,255,0.4);
+    text-decoration-style: dotted;
+}
+
+ol {
+    padding: 12px 24px;
+}
+
+li {
+    padding: 4px 0;
+}
+
+small, figcaption {
+    color: rgba(255,255,255,0.7);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+figcaption {
+    text-align: center;
+    margin-top: -30px;
+    filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.25));
+}
+
+img, video {
+    background: #081411;
+    color: #445551;
+    border-radius: 30px;
+    height: 100%;
+    width: auto;
+    max-width: 80vw;
+    object-fit: cover;
+    display: block;
+}
+
+video {
+    /* aspect-ratio: 16 / 9; */
+}
+
+.grid-item {
+    grid-column: span 4;
+    padding: 0 24px;
+}
+
+figure {
+    grid-column: span 8;
+    margin: 24px 0;
+    position: relative;
+}
+
+    figure a {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        right: 24px;
+        bottom: 24px;
+        height: 80px;
+        width: 80px;
+        background: url(images/link-out.svg) no-repeat center center;
+        background-size: contain;
+        filter: drop-shadow(0px 2px 5px rgba(0,0,0,0.20)) drop-shadow(0px 10px 10px rgba(0,0,0,0.05));
+    }
+
+      .download {
+        background: url(images/download.svg) no-repeat center center;
+        background-size: contain;
+      }
+
+    figure a:hover {
+        transform: scale(0.95);
+    }
+
+.intro { 
+    max-width: 640px; 
+    grid-column: span 12; 
+}
+
+.overview { 
+    margin-bottom: 48px;
+    grid-column: span 12; 
+}
+
+.carousel {
+    position: relative;
+    grid-column: span 12;
+    height: 32vw;
+    min-height: 320px;
+    margin-bottom: 48px;
+    overflow: hidden;
+    cursor: grab;
+}
+
+.carousel-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+}
+
+.carousel-item {
+    /* flex: 0 0 100%; */
+    margin-right: 20px;
+}
+
+    .carousel-item:first-of-type {
+        padding-left: 24px;
+    }   
+
+.carousel-dots {
+  display: flex;
+  position: absolute;
+  bottom: 0;
+  margin-left: 24px;
+}
+
+.carousel-dot {
+    width: 10px;
+    height: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: rgba(255,255,255,0.1);
+    padding: 0;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+.carousel-dot.active {
+  background-color: #FF402D;
+}
+
+
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10%;
+    height: 100%;
+    margin: -20px;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.0);
+    border: none;
+    /* border-radius: 50%; */
+    color: transparent;
+    /* font-size: 16px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    /* transition: background-color 0.3s ease-in-out; */
+}
+
+.carousel-control:hover {
+    background-color: rgba(255, 64, 45, 0.0);
+}
+
+.prev {
+    left: 10px;
+    cursor: w-resize;
+}
+
+.next {
+    right: 10px;
+    cursor: e-resize;
+}
+
+@media (max-width: 1200px) {
+    .grid-item {
+        grid-column: span 6;
+    }
+}
+
+@media (max-width: 900px) {
+    .grid-item {
+        grid-column: span 12;
+    }
+
+    .carousel {
+        min-height: 240px;
+        margin-bottom: 24px;
+    }
+
+    .overview {
+        margin-bottom: 24px;
+    }
+
+    figure a {
+        height: 48px;
+        width: 48px;
+    }
+
+    figcaption {
+        display: none;
+    }
+}

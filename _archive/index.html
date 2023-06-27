@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Austin Long — Art Director & Designer in San Francisco</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,100;1,9..144,300&display=swap" rel="stylesheet">
+    <style>
+        /* CSS styles go here */
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #101D1A;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 24px;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        
+        h1, em, li {
+            font-family: 'Fraunces', sans-serif;
+            font-weight: 100;
+            color: #fff;
+            padding: 0;
+            max-width: 640px;
+        }
+
+        h1 { 
+            font-size: 44px;
+            line-height: 0.95em;
+            letter-spacing: -0.04em; 
+            margin: 0;
+            text-wrap: balance;
+        }
+
+        li, em {
+            font-size: 22px;
+            font-style: italic;
+            font-weight: 300;
+        }
+        
+        p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 20px;
+            line-height: 27px;
+            color: #fff;
+            margin: 0;
+            max-width: 640px;
+        }
+
+        a { 
+            color: inherit; 
+            text-underline-offset: 4px;
+            text-decoration-thickness: 1px;
+            text-decoration-color: rgba(255,255,255,0.4);
+            text-decoration-style: dotted;
+        }
+
+        ol {
+            padding: 12px 24px;
+        }
+
+        li {
+            padding: 4px 0;
+        }
+
+
+        small, figcaption {
+            color: rgba(255,255,255,0.7);
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        figcaption {
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        img, video {
+          background: #081411;
+          color: #445551;
+          border-radius: 30px;
+          height: auto;
+          width: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        
+        .grid-item {
+            grid-column: span 10;
+        }
+
+        figure {
+            grid-column: span 10;
+            margin: 24px 0;
+            aspect-ratio: 16 / 9;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: repeat(1, 1fr);
+                grid-auto-rows: auto;
+            }
+
+            .grid-item, figure {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-item">
+        <p><small>San Francisco, CA</small></p>
+        <h1>Austin Long is an Art&nbsp;Director and Designer at Square.</h1>
+    </div>
+    <figure>
+        <video playsinline autoplay loop muted>
+          <source src="made-to-order-sample.mp4" type="video/mp4" />
+          <source src="made-to-order-sample.webm" type="video/webm" />
+          Sorry! Your browser doesn't seem to support the video tag.
+        </video>
+        <figcaption>Campaign for Square (2023) <a href="https://www.youtube.com/watch?v=7solx6aHEys">Restaurants</a> + <a href="https://www.youtube.com/watch?v=_lIewrjE8bw">Retail</a></figcaption>
+    </figure>
+    <div class="grid-item">
+        <p><small>Experience</small></p>
+        <p>For over 10 years, I’ve worked both in-house and independently to design meaningful, engaging experiences on the internet and offline. I‘ve led creative strategy for international marketing campaigns, designed digital products, and led multidisciplinary creative teams. I’ve also designed and built websites, brands, merch and illustrations for friends, neighborhood businesses and local organizations.</p>
+    </div>
+    <figure>
+        <img src="rintaro.jpg" alt="Home page design for Rintaro">
+        <figcaption><a href="https://izakayarintaro.com/">Website</a> & Illustrations for Rintaro (2019)</figcaption>
+    </figure>
+    <div class="grid-item">
+        <p><small>Process</small></p>
+        <p>On every project, I prioritize <em><a href="https://en.wikipedia.org/wiki/Group_cohesiveness">group cohesion</a></em>, <em><a href="http://www.iwritewordsgood.com/apl/patterns/apl208.htm">gradual stiffening</a></em> and <em><a href="https://en.wikipedia.org/wiki/Field_theory_(psychology)">field theory</a></em> as essential ingredients for developing high-quality creative work. Here’s what I mean by that:</p>
+        <ol>
+            <li>Make sure your team gets along</li>
+            <li>Keep your process flexible</li>
+            <li>Consider the full context</li>
+        </ol>
+        <p>From my experience, sticking to these principles increases the chance that the work you produce will resonate with audiences of varying intentions, interests and attention spans. It also makes projects more fun and interesting for everyone involved.</p>
+    </div>
+    <figure>
+        <img src="2023.jpg" alt="Illustration of two New Year's babies">
+        <figcaption>More work coming soon</figcaption>
+    </figure>
+    <div class="grid-item">
+        <p><small>Contact</small></p>
+        <p>In my current role, I have <em>very limited</em> time for side projects; but I’m always interested in hearing about opportunities that overlap with my interests in food & drink, philosophy, music, art, skateboarding, surfing and ecology. If you want to get in touch, hit me up on <a href="https://www.instagram.com/wrongaustin/">Instagram</a> or <a href="https://www.linkedin.com/in/rightaustin/">LinkedIn</a>.</p>
+    </div>
+</body>
+</html>
