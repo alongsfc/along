@@ -237,6 +237,12 @@ figure {
         margin-bottom: 24px;
     }
 
+    .carousel-dots {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+
     .overview {
         margin-bottom: 24px;
     }
