@@ -249,6 +249,10 @@ figure {
         padding-left: 12px;
     }
 
+    .carousel-control {
+        display: none;
+    }
+
     .carousel-dots {
         margin-left: 0;
         justify-content: center;
