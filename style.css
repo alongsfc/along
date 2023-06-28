@@ -82,7 +82,7 @@ img, video {
     border-radius: 30px;
     height: 100%;
     width: auto;
-    max-width: 80vw;
+    max-width: 88vw;
     object-fit: cover;
     display: block;
 }
@@ -241,7 +241,7 @@ figure {
     }
 
     .carousel {
-        min-height: 240px;
+        min-height: 260px;
         margin-bottom: 24px;
     }
 
