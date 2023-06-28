@@ -245,6 +245,10 @@ figure {
         margin-bottom: 24px;
     }
 
+    .carousel-item:first-of-type {
+        padding-left: 12px;
+    }
+
     .carousel-dots {
         margin-left: 0;
         justify-content: center;
