@@ -262,6 +262,8 @@ figure {
     figure a {
         height: 48px;
         width: 48px;
+        right: 12px;
+        bottom: 12px;
     }
 
     figcaption {
