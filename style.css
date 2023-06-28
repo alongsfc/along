@@ -228,6 +228,14 @@ figure {
 }
 
 @media (max-width: 900px) {
+    h1 {
+        font-size: 32px;
+    }
+
+    img, video {
+        border-radius: 20px;
+    }
+
     .grid-item {
         grid-column: span 12;
     }
