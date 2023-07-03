@@ -72,10 +72,9 @@ small, figcaption {
 
 figcaption {
     position: absolute;
-    top: 44px;
+    top: 16px;
     left: 16px;
     text-align: center;
-    margin-top: -30px;
     padding: 4px 8px;
     background-color: rgb(16 29 26 / 80%);
     border-radius: 20px;
@@ -277,7 +276,7 @@ figure {
     }
 
     figcaption {
-        top: 36px;
+        top: 8px;
         left: 8px;
         /* display: none; */
     }
