@@ -62,7 +62,7 @@ li {
     padding: 4px 0;
 }
 
-small, figcaption {
+small {
     color: rgba(255,255,255,0.7);
     font-size: 10px;
     letter-spacing: 0.15em;
@@ -70,16 +70,57 @@ small, figcaption {
     font-weight: 700;
 }
 
+figcaption::before {
+    content: url('images/infotip.svg');
+    height: 32px;
+    width: 32px;
+    opacity: 0.4;
+}
+
+figcaption:hover::before, figcaption:active::before {
+    opacity: 1;
+}
+
 figcaption {
     position: absolute;
+    display: flex;
     top: 16px;
     left: 16px;
-    text-align: center;
-    padding: 4px 8px;
-    color: rgb(16 29 26 / 80%);
+    max-width: 80%;
+    padding: 6px;
     background: rgb(255 255 255 / 90%);;
-    border-radius: 20px;
+    border-radius: 24px;
     filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.05));
+    z-index: 100;
+    cursor: help;
+}
+
+figcaption p {
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    width: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.35em;
+    color: rgb(16 29 26 / 80%);
+    transition: opacity 0.2s ease 0.1s, height 0.2s ease, width 0.2s ease, padding 0.2s ease;
+    text-wrap: balance;
+}
+
+figcaption:hover p, figcaption:active p {
+    opacity: 1;
+    height: auto;
+    width: auto;
+    visibility: visible;
+    padding: 6px 6px 6px 12px;
+}
+
+figcaption small {
+    line-height: 1.25em;
+    color: rgb(16 29 26 / 80%);
+    padding-top: 6px;
+    display: block;
 }
 
 img, video {
@@ -195,10 +236,11 @@ figure {
 
 .carousel-control {
     position: absolute;
-    top: 50%;
+    z-index: 99;
+    top: 60%;
     transform: translateY(-50%);
     width: 10%;
-    height: 100%;
+    height: 60%;
     margin: -20px;
     padding: 0;
     background-color: rgba(0, 0, 0, 0.0);
