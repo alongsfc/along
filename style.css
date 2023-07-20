@@ -1,7 +1,17 @@
-/* CSS styles go here */
+:root {
+    --background-color: #101D1A;
+    --empty-state-color: rgba(255,255,255,0.1);
+    --primary-text-color: #fff;
+    --secondary-text-color: rgba(255,255,255,0.4);
+    --inverse-text-color: rgb(16 29 26 / 80%);
+    --inverse-secondary-text-color: rgb(16 29 26 / 40%);
+    --highlight-color: #FF402D;
+    --transparent: rgba(0, 0, 0, 0.0);
+}
+
 body {
     font-family: 'DM Sans', sans-serif;
-    background-color: #101D1A;
+    background-color: var(--background-color);
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: 24px;
@@ -15,7 +25,7 @@ body {
 h1, em, li {
     font-family: 'Fraunces', sans-serif;
     font-weight: 100;
-    color: #fff;
+    color: var(--primary-text-color);
     padding: 0;
 }
 
@@ -37,7 +47,7 @@ p {
     font-family: 'DM Sans', sans-serif;
     font-size: 20px;
     line-height: 27px;
-    color: #fff;
+    color: var(--primary-text-color);
     margin: 0 0 24px 0;
     max-width: 640px;
 }
@@ -50,7 +60,7 @@ a {
     color: inherit; 
     text-underline-offset: 4px;
     text-decoration-thickness: 1px;
-    text-decoration-color: rgba(255,255,255,0.4);
+    text-decoration-color: var(--secondary-text-color);
     text-decoration-style: dotted;
 }
 
@@ -63,7 +73,7 @@ li {
 }
 
 small {
-    color: rgba(255,255,255,0.7);
+    color: var(--secondary-text-color);
     font-size: 10px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -108,7 +118,7 @@ figcaption p {
     font-size: 14px;
     font-weight: 400;
     line-height: 1.35em;
-    color: rgb(16 29 26 / 80%);
+    color: var(--inverse-text-color);
     transition: opacity 0.2s ease 0.1s, height 0.2s ease, width 0.2s ease, padding 0.2s ease;
     /* text-wrap: balance; */
 }
@@ -123,14 +133,13 @@ figcaption:hover p, figcaption:active p {
 
 figcaption small {
     line-height: 1.25em;
-    color: rgb(16 29 26 / 40%);
+    color: var(--inverse-secondary-text-color);
     padding-top: 6px;
     display: block;
 }
 
 img, video {
-    background: #081411;
-    color: #445551;
+    background: var(--empty-state-color);
     border-radius: 30px;
     height: 100%;
     width: auto;
@@ -228,14 +237,14 @@ figure {
     height: 10px;
     border: none;
     border-radius: 10px;
-    background-color: rgba(255,255,255,0.1);
+    background-color: var(--empty-state-color);
     padding: 0;
     margin-right: 12px;
     cursor: pointer;
 }
 
 .carousel-dot.active {
-  background-color: #FF402D;
+  background-color: var(--highlight-color);
 }
 
 
@@ -248,7 +257,7 @@ figure {
     height: 60%;
     margin: -20px;
     padding: 0;
-    background-color: rgba(0, 0, 0, 0.0);
+    background-color: var(--transparent);
     border: none;
     /* border-radius: 50%; */
     color: transparent;
@@ -261,7 +270,7 @@ figure {
 }
 
 .carousel-control:hover {
-    background-color: rgba(255, 64, 45, 0.0);
+    background-color: var(--transparent);
 }
 
 .prev {
