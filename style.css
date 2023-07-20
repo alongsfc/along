@@ -88,11 +88,16 @@ figcaption {
     left: 16px;
     max-width: 80%;
     padding: 6px;
-    background: rgb(255 255 255 / 90%);;
+    background: rgb(255 255 255 / 40%);;
     border-radius: 24px;
     filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.05));
     z-index: 100;
     cursor: help;
+    transition: background 0.2s ease;
+}
+
+figcaption:hover {
+    background: rgb(255 255 255 / 90%);;
 }
 
 figcaption p {
@@ -105,7 +110,7 @@ figcaption p {
     line-height: 1.35em;
     color: rgb(16 29 26 / 80%);
     transition: opacity 0.2s ease 0.1s, height 0.2s ease, width 0.2s ease, padding 0.2s ease;
-    text-wrap: balance;
+    /* text-wrap: balance; */
 }
 
 figcaption:hover p, figcaption:active p {
@@ -118,7 +123,7 @@ figcaption:hover p, figcaption:active p {
 
 figcaption small {
     line-height: 1.25em;
-    color: rgb(16 29 26 / 80%);
+    color: rgb(16 29 26 / 40%);
     padding-top: 6px;
     display: block;
 }
