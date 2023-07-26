@@ -101,6 +101,7 @@ figcaption {
     background: rgb(255 255 255 / 40%);;
     border-radius: 24px;
     filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.05));
+    backdrop-filter: blur(6px);
     z-index: 100;
     cursor: help;
     transition: background 0.2s ease;
