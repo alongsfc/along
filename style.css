@@ -154,7 +154,7 @@ video {
 }
 
 .grid-item {
-    grid-column: span 4;
+    grid-column: span 6;
     padding: 0 24px;
 }
 
