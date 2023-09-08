@@ -7,10 +7,12 @@
     --inverse-secondary-text-color: rgb(16 29 26 / 40%);
     --highlight-color: #FF402D;
     --transparent: rgba(0, 0, 0, 0.0);
+    --headline-font: 'Fraunces', sans-serif;
+    --body-font: 'DM Sans', sans-serif;
 }
 
 body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--body-font);
     background-color: var(--background-color);
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -23,7 +25,7 @@ body {
 }
 
 h1, em, li {
-    font-family: 'Fraunces', sans-serif;
+    font-family: var(--headline-font);
     font-weight: 100;
     color: var(--primary-text-color);
     padding: 0;
@@ -44,7 +46,7 @@ li, em {
 }
 
 p {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--body-font);
     font-size: 20px;
     line-height: 27px;
     color: var(--primary-text-color);
@@ -189,12 +191,12 @@ figure {
 
 .intro { 
     max-width: 640px; 
-    grid-column: span 12; 
+    grid-column: span 6; 
 }
 
 .overview { 
-    margin-bottom: 48px;
-    grid-column: span 12; 
+    margin-bottom: 24px;
+    grid-column: span 6; 
 }
 
 .carousel {
