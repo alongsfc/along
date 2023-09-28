@@ -351,7 +351,7 @@ figure {
         padding: 24px 0;
         width: 100%;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.00);
+        background: rgba(0, 0, 0, 0.01);
         backdrop-filter: blur(6px);
     }
 
