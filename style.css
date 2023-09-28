@@ -360,7 +360,8 @@ figure {
     }
 
     h2 {
-        font-size: 32px;
+        font-size: 24px;
+        line-height: 1.2em;
     }
 
     img, video {
@@ -378,6 +379,7 @@ figure {
 
     .carousel-item:first-of-type {
         margin-left: 12px;
+        min-width: 84vw;
     }
 
     .carousel-control {
@@ -391,7 +393,7 @@ figure {
     }
 
     .overview {
-        margin-bottom: 24px;
+        margin-bottom: 0px;
     }
 
     figure a {
