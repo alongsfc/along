@@ -267,7 +267,7 @@ figure {
 
     .carousel-item:first-of-type {
         margin-left: 24px;
-        width: 58.31vw;
+        min-width: 58.31vw;
         object-fit: cover;
     }
 
