@@ -55,7 +55,7 @@ li, em {
     letter-spacing: 0.05em;
     font-size: 0.8em;
     font-style: normal;
-    color: white;
+    color: inherit;
 }
 
 p {
@@ -72,7 +72,7 @@ a {
     color: inherit; 
     text-underline-offset: 4px;
     text-decoration-thickness: 1px;
-    text-decoration-color: var(--secondary-text-color);
+    text-decoration-color: inherit;
     text-decoration-style: dotted;
 }
 
@@ -155,7 +155,18 @@ figcaption {
     z-index: 100;
     cursor: help;
     transition: background 0.2s ease;
+    color: var(--inverse-text-color);
 }
+
+    figcaption a {
+        color: var(--highlight-color);
+        font-family: var(--headline-font);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.8em;
+
+    }
 
 figcaption:hover {
     background: rgb(255 255 255 / 90%);;
@@ -166,9 +177,9 @@ figcaption p {
     visibility: hidden;
     height: 0;
     width: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
-    line-height: 1.35em;
+    line-height: 1.25em;
     color: var(--inverse-text-color);
     transition: opacity 0.2s ease 0.1s, height 0.2s ease, width 0.2s ease, padding 0.2s ease;
     /* text-wrap: balance; */
@@ -214,6 +225,7 @@ figure {
     position: relative;
 }
 
+/*
     figure a {
         position: absolute;
         display: flex;
@@ -237,6 +249,7 @@ figure {
         transform: scale(0.95);
     }
 
+*/ 
 .intro { 
     max-width: 640px; 
     grid-column: span 7; 
@@ -406,12 +419,12 @@ figure {
         margin-bottom: 0px;
     }
 
-    figure a {
+/*    figure a {
         height: 48px;
         width: 48px;
         right: 12px;
         bottom: 12px;
-    }
+    } */
 
     figcaption {
         top: 8px;
