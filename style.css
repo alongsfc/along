@@ -146,8 +146,8 @@ figcaption:hover::before, figcaption:active::before {
 figcaption {
     position: absolute;
     display: flex;
-    top: 16px;
-    left: 16px;
+    bottom: 16px;
+    right: 16px;
     max-width: 80%;
     padding: 6px;
     background: rgb(255 255 255 / 40%);;
