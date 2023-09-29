@@ -146,12 +146,15 @@ figcaption:hover::before, figcaption:active::before {
 figcaption {
     position: absolute;
     display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+    justify-content: flex-end;
     bottom: 16px;
     right: 16px;
-    max-width: 80%;
+    max-width: 92%;
     padding: 6px;
     background: rgb(255 255 255 / 40%);;
-    border-radius: 24px;
+    border-radius: 20px;
     filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.05));
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
