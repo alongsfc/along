@@ -354,9 +354,11 @@ figure {
 
     .nav {
         position: fixed;
-        bottom: 0;
+        left: 50%;
+        transform: translate(-50%, 0);
+        bottom: 24px;
+        border-radius: 24px;
         padding: 24px 0;
-        width: 100%;
         justify-content: center;
         background: rgba(0, 0, 0, 0.01);
         -webkit-backdrop-filter: blur(6px);
