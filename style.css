@@ -374,7 +374,6 @@ figure {
     aspect-ratio: 1 / 1;
 }
 
-
 .carousel-item video, .carousel-item iframe {
     aspect-ratio: 16 / 9;
 }
@@ -437,6 +436,13 @@ figure {
 }
 
 
+/* MADE TO ORDER video */
+
+video.made-to-order {
+    display: none;
+}
+
+
 @media (max-width: 900px) {
     body {
         padding-bottom: 80px;
@@ -466,6 +472,14 @@ figure {
 
     img, video, iframe {
         border-radius: 30px 30px 30px 0px;
+    }
+
+    iframe {
+        display: none;
+    }
+
+    video.made-to-order {
+        display: block;
     }
 
     .grid-item {

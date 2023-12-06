@@ -1,0 +1,113 @@
+/* VARIABLES */
+
+:root {
+
+/* GRID */
+	--site-grid-columns: repeat(12, 1fr);			/* UNIVERSAL 12-COLUMN GRID */
+	--site-grid-rows: auto;							
+	--site-grid-gap: var(--spacing-desktop);
+
+	--full-width: span 12;
+	--half-width: span 6;
+	--third-width: span 4;
+	--quarter-width: span 3;
+	--sixth-width: span 2;
+
+/* DENSITY */
+	--spacing-desktop: 32px; 						/* THIS CHANGES OVERALL SITE DENSITY */
+	--spacing-mobile: 16px;
+	--padding: calc(var(--spacing-desktop) + 0px); 	/* ADDITIONAL SPACING FOR SPECIFIC ELEMENTS */
+	--padding-mobile: calc(var(--spacing-mobile) + 0px);
+
+
+/* SHAPE */
+	--radius: 8px; 									/* IMAGE + CONTAINER ROUNDING */
+	--button-radius: calc(var(--radius) * 5px);		/* BUTTON ROUNDING */
+
+/* TYPOGRAPHY */
+	/* These use 'font:' shorthand: {font-weight} {font-size}/{line-height} {font-family} */
+	--heading-font: "Inter", sans-serif;
+	--heading-larger: 600 80px/0.8 var(--heading-font);
+	--heading-large: 600 64px/0.9 var(--heading-font);
+	--heading-regular: 600 48px/1 var(--heading-font);
+	--heading-medium: 600 32px/1 var(--heading-font);
+	--heading-small: 600 24px/1 var(--heading-font);
+	--heading-smaller: 600 20px/1.1 var(--heading-font);
+	--heading-smallest: 600 16px/1.2 var(--heading-font);
+
+	--paragraph-font: "Inter", sans-serif;
+	--paragraph-regular: 300 16px/2 var(--paragraph-font);
+	--paragraph-small: 400 13px/2 var(--paragraph-font);
+	--paragraph-tiny: 400 11px/2 var(--paragraph-font);
+
+
+	--link-font: 400 11px/2 var(--paragraph-font); /* OPTIONAL */
+	--label-font: 400 11px/2 var(--paragraph-font); /* OPTIONAL */
+	--button-font: 400 11px/2 var(--paragraph-font); /* OPTIONAL */
+	--button-accessory-font: 400 11px/2 var(--paragraph-font); /* OPTIONAL */
+	--field-font: 400 11px/2 var(--paragraph-font); /* OPTIONAL */
+
+	--letter-spacing-normal: 0;
+	--letter-spacing-tight: -0.01em;
+	--letter-spacing-tighter: -0.03em;
+	--letter-spacing-wide: 0.01em;
+	--letter-spacing-wider: 0.03em;
+
+/* COLORS */
+	--text-10: #000;
+	--text-20: #000;
+	--text-30: #000;
+	--text-inverse: #fff;
+	--text-black: #000;
+	--text-white: #fff;
+
+	--fill-10: #000;
+	--fill-20: #000;
+	--fill-30: #000;
+	--fill-40: #000;
+	--fill-50: #000;
+	--fill-inverse: #000;
+	--fill-black: #000;
+	--fill-white: #000;
+
+	--divider-10: #000;
+	--divider-20: #000;
+	--divider-10-inverse: #fff;
+	--divider-20-inverse: #fff;
+
+	--surface-5: #fff;
+	--surface-10: #fff;
+	--surface-20: #fff;
+	--surface-30: #fff;
+	--surface-inverse: #fff;
+	--surface-overlay: #fff;
+
+	--emphasis-fill: #006aff;
+	--emphasis-text: #006aff;
+	--emphasis-10: #006aff;
+	--emphasis-20: #006aff;
+	--emphasis-30: #006aff;
+	--emphasis-40: #006aff;
+
+	--success-fill: #006aff;
+	--success-text: #006aff;
+	--success-10: #006aff;
+	--success-20: #006aff;
+	--success-30: #006aff;
+	--success-40: #006aff;
+
+	--warning-fill: #006aff;
+	--warning-text: #006aff;
+	--warning-10: #006aff;
+	--warning-20: #006aff;
+	--warning-30: #006aff;
+	--warning-40: #006aff;
+
+	--critical-fill: #006aff;
+	--critical-text: #006aff;
+	--critical-10: #006aff;
+	--critical-20: #006aff;
+	--critical-30: #006aff;
+	--critical-40: #006aff;
+
+}
