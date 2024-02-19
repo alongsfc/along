@@ -438,9 +438,11 @@ figure {
 
 /* MADE TO ORDER video */
 
+/*
 video.made-to-order {
     display: none;
 }
+*/
 
 
 @media (max-width: 900px) {
