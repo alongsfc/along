@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="en" data-paper="letter">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Time Off Calendar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap">
+  <style id="page-style">
+    @page { size: letter portrait; margin: 0.4in; }
+  </style>
+  <style>
+    :root {
+      --ink: #000;
+      --paper: #fff;
+      --hair: 0.5px;
+      --gap: 1.5rem;
+      --max: 56rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --ink: #fff; --paper: #000; }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Courier Prime", "Courier New", ui-monospace, monospace;
+      font-weight: 400;
+      color: var(--ink);
+      background: var(--paper);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    /* ------------- page chrome (UI) ------------- */
+    .page {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      border-bottom: var(--hair) solid var(--ink);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .masthead h1 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .masthead .meta {
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.65;
+    }
+
+    .intro {
+      max-width: 36rem;
+      margin: 0 0 var(--gap);
+    }
+    .intro p { margin: 0 0 0.75rem; }
+    .intro p:last-child { margin-bottom: 0; }
+
+    /* ------------- controls ------------- */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1.25rem 1.5rem;
+      border-top: var(--hair) solid var(--ink);
+      padding: 1.5rem 0;
+      margin: 0 0 1.5rem;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1 1 0;
+      min-width: 14rem;
+    }
+    .field--action {
+      flex: 0 0 auto;
+      min-width: 0;
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+    @media (max-width: 720px) {
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .field { min-width: 0; }
+      .field--action {
+        margin-left: 0;
+      }
+      .field--action .btn { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .controls { grid-template-columns: 1fr; }
+    }
+    .field-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+    .options { display: flex; flex-direction: column; gap: 0.25rem; }
+    .options.row { flex-direction: row; gap: 1rem; flex-wrap: wrap; }
+    .opt {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .opt input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 0.95rem;
+      height: 0.95rem;
+      border: var(--hair) solid var(--ink);
+      border-radius: 50%;
+      margin: 0;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      background: transparent;
+    }
+    .opt input[type="radio"]:checked::after {
+      content: "";
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+    .opt input[type="radio"]:focus-visible {
+      outline: var(--hair) solid var(--ink);
+      outline-offset: 3px;
+    }
+
+    /* Custom month picker replaces the Start dropdown in place when active,
+       so the field's height stays constant and nothing below shifts. */
+    .custom-month {
+      display: none;
+      flex-direction: row;
+      gap: 0.4rem;
+      align-items: center;
+      width: 100%;
+    }
+    .field--start.is-custom > .ts { display: none; }
+    .field--start.is-custom .custom-month { display: flex; }
+    .custom-month .ts { flex: 1 1 auto; min-width: 0; }
+    .custom-month .ts select {
+      width: 100%;
+      padding: 0.65rem 1.3rem 0.65rem 0.7rem;
+    }
+    .btn-reset {
+      font: inherit;
+      font-size: 0.95rem;
+      line-height: 1;
+      color: var(--ink);
+      background: transparent;
+      border: var(--hair) solid var(--ink);
+      cursor: pointer;
+      padding: 0;
+      width: 2.4rem;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .btn-reset:hover {
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+    }
+    .btn-reset:focus { outline: none; }
+    .btn-reset:focus-visible {
+      outline: var(--hair) solid var(--ink);
+      outline-offset: 3px;
+    }
+    .ts {
+      position: relative;
+      display: inline-block;
+    }
+    .field > .ts { display: block; }
+    .field > .ts select { width: 100%; }
+    .ts select {
+      font: inherit;
+      font-size: 0.8rem;
+      color: var(--ink);
+      background: transparent;
+      border: var(--hair) solid var(--ink);
+      border-radius: 0;
+      padding: 0.65rem 1.7rem 0.65rem 1rem;
+      margin: 0;
+      min-height: 44px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+    .ts select:hover {
+      background: color-mix(in srgb, var(--ink) 6%, transparent);
+    }
+    .ts select:focus { outline: none; }
+    .ts select:focus-visible {
+      outline: var(--hair) solid var(--ink);
+      outline-offset: 3px;
+    }
+    .ts::after {
+      content: "";
+      position: absolute;
+      right: 0.7rem;
+      top: 50%;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-right: var(--hair) solid var(--ink);
+      border-bottom: var(--hair) solid var(--ink);
+      transform: translateY(-70%) rotate(45deg);
+      pointer-events: none;
+    }
+    .ts select option {
+      color: #000;
+      background: #fff;
+      font-family: "Courier Prime", "Courier New", ui-monospace, monospace;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      .ts select option { color: #fff; background: #111; }
+    }
+
+    .btn {
+      font: inherit;
+      color: var(--ink);
+      background: transparent;
+      border: var(--hair) solid var(--ink);
+      padding: 0.65rem 1.1rem;
+      min-height: 44px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+    .btn:hover:not(:disabled) {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .btn:focus-visible {
+      outline: var(--hair) solid var(--ink);
+      outline-offset: 3px;
+    }
+    .btn--primary {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .btn--primary:hover:not(:disabled) {
+      background: var(--ink);
+      color: var(--paper);
+      outline: var(--hair) solid var(--ink);
+      outline-offset: 3px;
+    }
+
+    /* ------------- preview frame ------------- */
+    .preview-wrap {
+      display: flex;
+      justify-content: center;
+    }
+    .preview-shell {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 8.5 / 11;
+      overflow: hidden;
+      border: var(--hair) solid var(--ink);
+      background: #fff;
+    }
+    html[data-paper="a4"] .preview-shell {
+      aspect-ratio: 210 / 297;
+    }
+    .preview {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 8.5in;
+      height: 11in;
+      padding: 0.4in;
+      background: #fff;
+      color: #000;
+      transform-origin: top left;
+      /* transform: scale(s) set by JS based on shell width */
+    }
+    html[data-paper="a4"] .preview {
+      width: 210mm;
+      height: 297mm;
+      padding: 10mm;
+    }
+    .preview .calendar {
+      width: 100%;
+      height: 100%;
+    }
+
+    .preview:empty::before {
+      content: "Pick a month to see preview";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #999;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ------------- the calendar ------------- */
+    .calendar {
+      display: flex;
+      flex-direction: column;
+      color: #000;
+      background: #fff;
+      font-family: "Courier Prime", "Courier New", ui-monospace, monospace;
+    }
+    .grid {
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 0.16in;
+      min-height: 0;
+    }
+    html[data-paper="a4"] .grid { gap: 4mm; }
+
+    .tile {
+      display: grid;
+      grid-template-rows: auto auto repeat(6, var(--date-h, 0.22in)) 1fr;
+      min-height: 0;
+      min-width: 0;
+      padding: 0 0.04in 0.04in;
+    }
+    .tile .month {
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding-bottom: 0.03in;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+    }
+    .tile .month .sep,
+    .tile .month .yr {
+      font-weight: 400;
+      opacity: 0.65;
+    }
+    .tile .dow {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      font-size: 6.5pt;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.04in 0 0.06in;
+      margin-bottom: 0.03in;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 4' preserveAspectRatio='none'><line x1='2' y1='2' x2='498' y2='2' stroke='black' stroke-width='1.2' stroke-dasharray='0 4' stroke-linecap='round'/></svg>");
+      background-size: 250pt 2pt;
+      background-repeat: repeat-x;
+      background-position: bottom;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .tile .dow span {
+      text-align: left;
+    }
+    .tile .row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      align-items: center;
+      min-height: 0;
+    }
+    .tile .row span {
+      text-align: left;
+      font-size: 8pt;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .tile .row span.empty { color: transparent; }
+    .tile .row .num {
+      display: inline-block;
+      position: relative;
+    }
+    .tile .row .holiday .num::after {
+      content: "";
+      position: absolute;
+      width: 1.7em;
+      height: 1.7em;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, calc(-50% - 1px));
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='none' stroke='black' stroke-width='1' stroke-dasharray='0 3' stroke-linecap='round'/></svg>");
+      background-size: contain;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .tile .lines {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .tile .lines > div {
+      flex: 0 0 0.22in;
+      min-height: 0;
+      display: flex;
+      gap: 0.12in;
+    }
+    .tile .lines > div > div {
+      flex: 1 1 0;
+      min-width: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 4' preserveAspectRatio='none'><line x1='2' y1='2' x2='498' y2='2' stroke='black' stroke-width='1.2' stroke-dasharray='0 4' stroke-linecap='round'/></svg>");
+      background-size: 250pt 2pt;
+      background-repeat: repeat-x;
+      background-position: bottom;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    html[data-paper="a4"] .tile { grid-template-rows: auto auto repeat(6, var(--date-h, 5.5mm)) 1fr; }
+    html[data-paper="a4"] .tile .lines > div { flex: 0 0 5.5mm; }
+
+    /* ------------- print ------------- */
+    @media print {
+      :root { --ink: #000; --paper: #fff; }
+      body { background: #fff; color: #000; font-size: 10pt; }
+      .no-print { display: none !important; }
+      .page { padding: 0; max-width: none; margin: 0; }
+      .preview-wrap,
+      .preview-shell {
+        display: block;
+        position: static;
+        width: auto;
+        height: auto;
+        max-width: none;
+        max-height: none;
+        aspect-ratio: auto;
+        border: none;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+      }
+      .preview {
+        position: static;
+        transform: none !important;
+        margin: 0;
+      }
+      html[data-paper="letter"] .preview { width: 8.5in; height: 11in; padding: 0.4in; }
+      html[data-paper="a4"] .preview { width: 210mm; height: 297mm; padding: 10mm; }
+      .preview:empty::before { content: none; }
+      .calendar {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="masthead no-print">
+      <h1>Time Off Calendar</h1>
+      <div class="meta">A printable planner</div>
+    </div>
+
+    <section class="intro no-print">
+      <p>A one-page calendar for the year ahead. Pick a starting month, print it on a single sheet, and use the ruled lines under each month to plan time off, deep work weeks, and the new things you want to make space for.</p>
+      <p>Inspired by a calendar I've been making for myself every year. Built to be simple, neutral, and yours to mark up.</p>
+    </section>
+
+    <section class="controls no-print" aria-label="Calendar options">
+      <div class="field field--start">
+        <div class="field-label">Start</div>
+        <span class="ts">
+          <select id="start-select" aria-label="Start month">
+            <option value="this-month">This month</option>
+            <option value="this-year">This calendar year</option>
+            <option value="next-year">Next calendar year</option>
+            <option value="custom">Custom</option>
+          </select>
+        </span>
+        <div class="custom-month" id="custom-month-wrap">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Week starts on</div>
+        <span class="ts">
+          <select id="weekstart-select" aria-label="Week start">
+            <option value="0">Sunday</option>
+            <option value="1">Monday</option>
+          </select>
+        </span>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Paper</div>
+        <span class="ts">
+          <select id="paper-select" aria-label="Paper size">
+            <option value="letter">US Letter (8.5 × 11 in)</option>
+            <option value="a4">A4 (210 × 297 mm)</option>
+          </select>
+        </span>
+      </div>
+
+      <div class="field field--action">
+        <button class="btn btn--primary" id="print" type="button" disabled>Print</button>
+      </div>
+    </section>
+
+    <div class="preview-wrap">
+      <div class="preview-shell" id="preview-shell">
+        <div class="preview" id="preview" aria-live="polite"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (() => {
+    "use strict";
+
+    // ---------- date helpers (all local-time, noon-anchored) ----------
+    const noon = (y, m, d) => new Date(y, m, d, 12, 0, 0, 0);
+    const today = () => { const n = new Date(); return noon(n.getFullYear(), n.getMonth(), n.getDate()); };
+    const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
+
+    // ---------- US Federal Holiday detection ----------
+    function nthWeekdayOfMonth(y, m, weekday, n) {
+      // weekday: 0=Sun..6=Sat. n: 1=first, 2=second, etc.
+      const firstDow = noon(y, m, 1).getDay();
+      const offset = (weekday - firstDow + 7) % 7;
+      return 1 + offset + (n - 1) * 7;
+    }
+    function lastWeekdayOfMonth(y, m, weekday) {
+      const last = daysInMonth(y, m);
+      const lastDow = noon(y, m, last).getDay();
+      const offset = (lastDow - weekday + 7) % 7;
+      return last - offset;
+    }
+    function isUSFederalHoliday(y, m, d) {
+      // Fixed-date holidays
+      if (m === 0 && d === 1)  return true; // New Year's Day
+      if (m === 5 && d === 19) return true; // Juneteenth
+      if (m === 6 && d === 4)  return true; // Independence Day
+      if (m === 10 && d === 11) return true; // Veterans Day
+      if (m === 11 && d === 25) return true; // Christmas Day
+      // Computed (Nth weekday of month)
+      if (m === 0  && d === nthWeekdayOfMonth(y, 0, 1, 3))  return true; // MLK Day (3rd Mon Jan)
+      if (m === 1  && d === nthWeekdayOfMonth(y, 1, 1, 3))  return true; // Presidents Day (3rd Mon Feb)
+      if (m === 4  && d === lastWeekdayOfMonth(y, 4, 1))    return true; // Memorial Day (last Mon May)
+      if (m === 8  && d === nthWeekdayOfMonth(y, 8, 1, 1))  return true; // Labor Day (1st Mon Sep)
+      if (m === 9  && d === nthWeekdayOfMonth(y, 9, 1, 2))  return true; // Columbus Day (2nd Mon Oct)
+      if (m === 10 && d === nthWeekdayOfMonth(y, 10, 4, 4)) return true; // Thanksgiving (4th Thu Nov)
+      return false;
+    }
+
+    const MONTH_LONG = new Intl.DateTimeFormat(undefined, { month: "long" });
+    const DOW_SHORT = (() => {
+      const fmt = new Intl.DateTimeFormat(undefined, { weekday: "short" });
+      // Anchor to a known Sunday (Jan 4 1970 was a Sunday, noon-anchored)
+      const sun = noon(1970, 0, 4);
+      const labels = [];
+      for (let i = 0; i < 7; i++) {
+        const d = noon(1970, 0, 4 + i);
+        labels.push(fmt.format(d));
+      }
+      return labels; // [Sun..Sat]
+    })();
+
+    // ---------- custom month picker (two styled selects, all browsers) ----------
+    function buildMonthInput(wrap, onReset) {
+      wrap.innerHTML = "";
+      const now = new Date();
+
+      const monthShell = document.createElement("span");
+      monthShell.className = "ts";
+      const monthSel = document.createElement("select");
+      monthSel.setAttribute("aria-label", "Month");
+      for (let m = 0; m < 12; m++) {
+        const opt = document.createElement("option");
+        opt.value = String(m + 1).padStart(2, "0");
+        opt.textContent = MONTH_LONG.format(noon(2000, m, 1));
+        if (m === now.getMonth()) opt.selected = true;
+        monthSel.appendChild(opt);
+      }
+      monthShell.appendChild(monthSel);
+
+      const yearShell = document.createElement("span");
+      yearShell.className = "ts";
+      const yearSel = document.createElement("select");
+      yearSel.setAttribute("aria-label", "Year");
+      const nowY = now.getFullYear();
+      for (let y = nowY - 5; y <= nowY + 10; y++) {
+        const opt = document.createElement("option");
+        opt.value = String(y);
+        opt.textContent = String(y);
+        if (y === nowY) opt.selected = true;
+        yearSel.appendChild(opt);
+      }
+      yearShell.appendChild(yearSel);
+
+      const resetBtn = document.createElement("button");
+      resetBtn.type = "button";
+      resetBtn.className = "btn-reset";
+      resetBtn.setAttribute("aria-label", "Back to presets");
+      resetBtn.setAttribute("title", "Back to presets");
+      resetBtn.textContent = "×";
+      if (typeof onReset === "function") {
+        resetBtn.addEventListener("click", onReset);
+      }
+
+      wrap.appendChild(monthShell);
+      wrap.appendChild(yearShell);
+      wrap.appendChild(resetBtn);
+
+      return {
+        get value() {
+          return `${yearSel.value}-${monthSel.value}`;
+        },
+        on(handler) {
+          monthSel.addEventListener("change", handler);
+          yearSel.addEventListener("change", handler);
+        },
+        focus() { monthSel.focus(); }
+      };
+    }
+
+    const customWrap = document.getElementById("custom-month-wrap");
+    const startField = document.querySelector(".field--start");
+    const monthInput = buildMonthInput(customWrap, () => {
+      startSel.value = "this-month";
+      update();
+      startSel.focus();
+    });
+
+    // ---------- read controls ----------
+    const startSel = document.getElementById("start-select");
+    const weekstartSel = document.getElementById("weekstart-select");
+    const paperSel = document.getElementById("paper-select");
+
+    function readState() {
+      const start = startSel.value;
+      const weekStart = parseInt(weekstartSel.value, 10);
+      const paper = paperSel.value;
+      return { start, weekStart, paper, customMonth: monthInput.value };
+    }
+
+    function computeStart(state) {
+      const t = today();
+      if (state.start === "this-month") return noon(t.getFullYear(), t.getMonth(), 1);
+      if (state.start === "this-year") return noon(t.getFullYear(), 0, 1);
+      if (state.start === "next-year") return noon(t.getFullYear() + 1, 0, 1);
+      if (state.start === "custom") {
+        const v = state.customMonth;
+        if (!v) return null;
+        const [yStr, mStr] = v.split("-");
+        const y = parseInt(yStr, 10), m = parseInt(mStr, 10);
+        if (!Number.isFinite(y) || !Number.isFinite(m) || m < 1 || m > 12) return null;
+        return noon(y, m - 1, 1);
+      }
+      return null;
+    }
+
+    function canGenerate(state) {
+      if (state.start === "custom" && !state.customMonth) return false;
+      return true;
+    }
+
+    // ---------- render ----------
+    function render(state) {
+      const startDate = computeStart(state);
+      if (!startDate) return;
+
+      const startY = startDate.getFullYear();
+      const startM = startDate.getMonth();
+      const endDate = noon(startY, startM + 11, 1);
+      const endY = endDate.getFullYear();
+
+      const root = document.getElementById("preview");
+      root.innerHTML = "";
+
+      const cal = document.createElement("div");
+      cal.className = "calendar";
+
+      const grid = document.createElement("div");
+      grid.className = "grid";
+
+      const dowOrder = [];
+      for (let i = 0; i < 7; i++) dowOrder.push(DOW_SHORT[(state.weekStart + i) % 7]);
+
+      let prevYear = null;
+      for (let i = 0; i < 12; i++) {
+        const tileDate = noon(startY, startM + i, 1);
+        const ty = tileDate.getFullYear();
+        const tm = tileDate.getMonth();
+
+        const tile = document.createElement("div");
+        tile.className = "tile";
+
+        const mLabel = document.createElement("div");
+        mLabel.className = "month";
+        const mName = document.createElement("span");
+        mName.textContent = MONTH_LONG.format(tileDate);
+        mLabel.appendChild(mName);
+        if (i === 0 || ty !== prevYear) {
+          const sep = document.createElement("span");
+          sep.className = "sep";
+          sep.textContent = "·";
+          mLabel.appendChild(sep);
+          const yr = document.createElement("span");
+          yr.className = "yr";
+          yr.textContent = String(ty);
+          mLabel.appendChild(yr);
+        }
+        prevYear = ty;
+        tile.appendChild(mLabel);
+
+        const dow = document.createElement("div");
+        dow.className = "dow";
+        for (const label of dowOrder) {
+          const s = document.createElement("span");
+          // Single-letter day label (S M T W T F S).
+          s.textContent = label.replace(/\.$/, "").charAt(0);
+          dow.appendChild(s);
+        }
+        tile.appendChild(dow);
+
+        // Build 6 rows × 7 cols
+        const firstDow = noon(ty, tm, 1).getDay();
+        const leading = (firstDow - state.weekStart + 7) % 7;
+        const total = daysInMonth(ty, tm);
+        let dayCounter = 1 - leading;
+        for (let r = 0; r < 6; r++) {
+          const row = document.createElement("div");
+          row.className = "row";
+          for (let c = 0; c < 7; c++) {
+            const cell = document.createElement("span");
+            if (dayCounter < 1 || dayCounter > total) {
+              cell.className = "empty";
+              cell.textContent = "·";
+            } else {
+              if (isUSFederalHoliday(ty, tm, dayCounter)) {
+                cell.classList.add("holiday");
+              }
+              const num = document.createElement("span");
+              num.className = "num";
+              num.textContent = String(dayCounter);
+              cell.appendChild(num);
+            }
+            row.appendChild(cell);
+            dayCounter++;
+          }
+          tile.appendChild(row);
+        }
+
+        const lines = document.createElement("div");
+        lines.className = "lines";
+        for (let li = 0; li < 3; li++) {
+          const row = document.createElement("div");
+          row.appendChild(document.createElement("div"));
+          row.appendChild(document.createElement("div"));
+          lines.appendChild(row);
+        }
+        tile.appendChild(lines);
+
+        grid.appendChild(tile);
+      }
+      cal.appendChild(grid);
+      root.appendChild(cal);
+    }
+
+    // ---------- page style swap ----------
+    function applyPaperStyle(paper) {
+      const pageStyle = document.getElementById("page-style");
+      // Margin 0 because the preview's internal padding provides the print margin.
+      if (paper === "a4") {
+        pageStyle.textContent = "@page { size: A4 portrait; margin: 0; }";
+      } else {
+        pageStyle.textContent = "@page { size: letter portrait; margin: 0; }";
+      }
+      document.documentElement.setAttribute("data-paper", paper);
+    }
+
+    // ---------- responsive scaling ----------
+    function applyScale() {
+      const shell = document.getElementById("preview-shell");
+      const preview = document.getElementById("preview");
+      if (!shell || !preview) return;
+      const paper = document.documentElement.getAttribute("data-paper");
+      // CSS spec: 1in = 96px exactly.
+      const designWidthPx = paper === "a4" ? (210 / 25.4) * 96 : 8.5 * 96;
+      const actualWidthPx = shell.getBoundingClientRect().width;
+      if (actualWidthPx === 0) return;
+      const scale = actualWidthPx / designWidthPx;
+      preview.style.transform = `scale(${scale})`;
+    }
+
+    // ---------- wiring ----------
+    const printBtn = document.getElementById("print");
+    const previewEl = document.getElementById("preview");
+
+    function update() {
+      const state = readState();
+      startField.classList.toggle("is-custom", state.start === "custom");
+      applyPaperStyle(state.paper);
+
+      if (!canGenerate(state)) {
+        previewEl.innerHTML = "";
+        printBtn.disabled = true;
+        return;
+      }
+      render(state);
+      applyScale();
+      printBtn.disabled = false;
+    }
+
+    function doPrint() {
+      if (printBtn.disabled) return;
+      window.print();
+    }
+
+    startSel.addEventListener("change", () => {
+      update();
+      if (startSel.value === "custom") {
+        setTimeout(() => monthInput.focus(), 0);
+      }
+    });
+    weekstartSel.addEventListener("change", update);
+    paperSel.addEventListener("change", update);
+    monthInput.on(update);
+    printBtn.addEventListener("click", doPrint);
+
+    // Keep the preview scaled to its container as the viewport changes.
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(() => applyScale());
+      ro.observe(document.getElementById("preview-shell"));
+    } else {
+      window.addEventListener("resize", applyScale);
+    }
+
+    // Initial render: wait for fonts so the first paint is correct.
+    (async () => {
+      try { await document.fonts.ready; } catch (_) {}
+      update();
+    })();
+  })();
+  </script>
+</body>
+</html>
