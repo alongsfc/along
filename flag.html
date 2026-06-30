@@ -17,7 +17,8 @@
     {
         "imports": {
             "three": "./lib/three.module.js",
-            "cannon-es": "./lib/cannon-es.js"
+            "cannon-es": "./lib/cannon-es.js",
+            "room-env": "./lib/RoomEnvironment.js"
         }
     }
     </script>
@@ -26,6 +27,7 @@
 <script type="module">
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import { RoomEnvironment } from 'room-env';
 
 const FLAG_RED = '#B31942';
 const FLAG_WHITE = '#FFFFFF';
@@ -45,15 +47,20 @@ camera.lookAt(0, 2, 0);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-scene.add(ambientLight);
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+const roomEnv = new RoomEnvironment();
+scene.environment = pmremGenerator.fromScene(roomEnv, 0.04).texture;
+roomEnv.dispose();
+pmremGenerator.dispose();
 
-const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
-mainLight.position.set(5, 8, 12);
+const mainLight = new THREE.DirectionalLight(0xffffff, 0.5);
+mainLight.position.set(5, 10, 12);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
 mainLight.shadow.camera.left = -15;
@@ -65,10 +72,6 @@ mainLight.shadow.camera.far = 40;
 mainLight.shadow.bias = -0.0005;
 mainLight.shadow.normalBias = 0.02;
 scene.add(mainLight);
-
-const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
-fillLight.position.set(-5, 3, 8);
-scene.add(fillLight);
 
 const world = new CANNON.World({
     gravity: new CANNON.Vec3(0, 0, 0),
@@ -86,6 +89,11 @@ function getFrustumBounds() {
     return { halfW, halfH };
 }
 
+const GROUP_STRIPE = 1;
+const GROUP_CANTON = 2;
+const GROUP_STAR = 4;
+const GROUP_WALL = 8;
+
 const { halfW } = getFrustumBounds();
 
 const groundY = -3;
@@ -93,12 +101,15 @@ const groundBody = new CANNON.Body({ mass: 0 });
 groundBody.addShape(new CANNON.Plane());
 groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
 groundBody.position.set(0, groundY, 0);
+groundBody.collisionFilterGroup = GROUP_WALL;
+groundBody.collisionFilterMask = -1;
 world.addBody(groundBody);
 
 const groundGeo = new THREE.PlaneGeometry(80, 80);
-const groundMat = new THREE.MeshPhongMaterial({
+const groundMat = new THREE.MeshStandardMaterial({
     color: BG_COLOR,
-    shininess: 0,
+    roughness: 1.0,
+    metalness: 0,
 });
 const groundMesh = new THREE.Mesh(groundGeo, groundMat);
 groundMesh.rotation.x = -Math.PI / 2;
@@ -112,6 +123,8 @@ function addWall(px, py, pz, qx, qy, qz) {
     wall.addShape(new CANNON.Plane());
     wall.quaternion.setFromEuler(qx, qy, qz);
     wall.position.set(px, py, pz);
+    wall.collisionFilterGroup = GROUP_WALL;
+    wall.collisionFilterMask = -1;
     world.addBody(wall);
     wallBodies.push(wall);
 }
@@ -128,13 +141,14 @@ const bodies = [];
 const meshes = [];
 
 function makeMaterial(color) {
-    return new THREE.MeshPhongMaterial({
+    return new THREE.MeshStandardMaterial({
         color,
-        shininess: 30,
+        roughness: 0.6,
+        metalness: 0.05,
     });
 }
 
-function createBlock(sx, sy, sz, px, py, pz, color) {
+function createBlock(sx, sy, sz, px, py, pz, color, group) {
     let bx = sx, by = sy, fx = px, fy = py;
     if (portrait) {
         bx = sy;
@@ -157,6 +171,8 @@ function createBlock(sx, sy, sz, px, py, pz, color) {
     body.position.set(fx, fy, pz);
     body.linearDamping = 0.2;
     body.angularDamping = 0.3;
+    body.collisionFilterGroup = group;
+    body.collisionFilterMask = group | GROUP_WALL;
     world.addBody(body);
 
     bodies.push(body);
@@ -164,7 +180,7 @@ function createBlock(sx, sy, sz, px, py, pz, color) {
     return { mesh, body };
 }
 
-const GAP = 0.12;
+const GAP = 0.06;
 const FLAG_W = 10;
 const FLAG_H = FLAG_W / 1.9;
 const STRIPE_H = (FLAG_H - 12 * GAP) / 13;
@@ -186,15 +202,15 @@ for (let i = 0; i < 13; i++) {
     if (inCanton) {
         const stripeW = FLAG_W - CANTON_W - GAP;
         const x = flagLeft + CANTON_W + GAP + stripeW / 2;
-        createBlock(stripeW, STRIPE_H, STRIPE_DEPTH, x, y, 0, color);
+        createBlock(stripeW, STRIPE_H, STRIPE_DEPTH, x, y, 0, color, GROUP_STRIPE);
     } else {
-        createBlock(FLAG_W, STRIPE_H, STRIPE_DEPTH, 0, y, 0, color);
+        createBlock(FLAG_W, STRIPE_H, STRIPE_DEPTH, 0, y, 0, color, GROUP_STRIPE);
     }
 }
 
 const cantonX = flagLeft + CANTON_W / 2;
 const cantonY = flagTop - CANTON_H / 2;
-createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, STRIPE_DEPTH + 0.1, FLAG_BLUE);
+createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, 0.01, FLAG_BLUE, GROUP_CANTON);
 
 const starRows = [6, 5, 6, 5, 6, 5, 6, 5, 6];
 
@@ -233,7 +249,7 @@ for (let row = 0; row < starRows.length; row++) {
     for (let col = 0; col < count; col++) {
         let starX = flagLeft + (CANTON_W / 12) + (CANTON_W / 6) * col + offsetX;
         let starY = rowY;
-        const starZ = STRIPE_DEPTH + STAR_SIZE / 2 + 0.15;
+        const starZ = STRIPE_DEPTH / 2 + STAR_SIZE / 2 + 0.05;
 
         if (portrait) {
             const tmp = starX;
@@ -253,6 +269,8 @@ for (let row = 0; row < starRows.length; row++) {
         body.position.set(starX, starY, starZ);
         body.linearDamping = 0.2;
         body.angularDamping = 0.3;
+        body.collisionFilterGroup = GROUP_STAR;
+        body.collisionFilterMask = GROUP_STAR | GROUP_WALL;
         world.addBody(body);
 
         bodies.push(body);
@@ -269,8 +287,20 @@ bodies.forEach(b => b.sleep());
 setTimeout(() => {
     physicsStarted = true;
     world.gravity.set(0, -BASE_GRAVITY, 0);
-    bodies.forEach(b => b.wakeUp());
-    setTimeout(() => { gyroActive = true; }, 2000);
+    bodies.forEach(b => {
+        b.wakeUp();
+        b.velocity.set(
+            (Math.random() - 0.5) * 0.4,
+            (Math.random() - 0.5) * 0.2,
+            (Math.random() - 0.5) * 0.3
+        );
+    });
+    setTimeout(() => {
+        bodies.forEach(b => {
+            b.collisionFilterMask = -1;
+        });
+        gyroActive = true;
+    }, 2000);
 }, 1200);
 
 if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
