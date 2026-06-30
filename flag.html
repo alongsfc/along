@@ -39,8 +39,8 @@ scene.background = new THREE.Color(BG_COLOR);
 scene.fog = new THREE.FogExp2(BG_COLOR, 0.025);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 0, portrait ? 22 : 18);
-camera.lookAt(0, 0, 0);
+camera.position.set(0, 2, portrait ? 22 : 18);
+camera.lookAt(0, 2, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -414,7 +414,7 @@ function animate() {
     if (!dragConstraint) {
         camera.position.x = cameraOrigin.x + Math.sin(elapsed * 0.15) * 0.4;
         camera.position.y = cameraOrigin.y + Math.sin(elapsed * 0.1) * 0.2;
-        camera.lookAt(0, -0.5, 0);
+        camera.lookAt(0, 1.5, 0);
     }
 
     renderer.render(scene, camera);
