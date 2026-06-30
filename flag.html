@@ -263,9 +263,13 @@ for (let row = 0; row < starRows.length; row++) {
 }
 
 const BASE_GRAVITY = 12;
+let physicsStarted = false;
 let gyroActive = false;
 
+bodies.forEach(b => b.sleep());
+
 setTimeout(() => {
+    physicsStarted = true;
     world.gravity.set(0, -BASE_GRAVITY, 0);
     bodies.forEach(b => {
         b.wakeUp();
@@ -403,7 +407,7 @@ function animate() {
     lastTime = now;
     elapsed += delta;
 
-    world.step(fixedStep, delta, 3);
+    if (physicsStarted) world.step(fixedStep, delta, 3);
 
     for (let i = 0; i < bodies.length; i++) {
         meshes[i].position.copy(bodies[i].position);
