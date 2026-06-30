@@ -35,9 +35,8 @@ const BG_COLOR = '#f2f2f2';
 const portrait = window.innerWidth / window.innerHeight < 1;
 
 const scene = new THREE.Scene();
-const bgColor = new THREE.Color(BG_COLOR).convertSRGBToLinear();
-scene.background = bgColor;
-scene.fog = new THREE.FogExp2(bgColor, 0.025);
+scene.background = new THREE.Color(BG_COLOR);
+scene.fog = new THREE.FogExp2(BG_COLOR, 0.025);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 0, portrait ? 22 : 18);
@@ -99,10 +98,10 @@ world.addBody(groundBody);
 
 const groundGeo = new THREE.PlaneGeometry(80, 80);
 const groundMat = new THREE.MeshStandardMaterial({
+    color: BG_COLOR,
     roughness: 1.0,
     metalness: 0,
 });
-groundMat.color.set(BG_COLOR).convertSRGBToLinear();
 const groundMesh = new THREE.Mesh(groundGeo, groundMat);
 groundMesh.rotation.x = -Math.PI / 2;
 groundMesh.position.y = groundY;
@@ -131,12 +130,11 @@ const bodies = [];
 const meshes = [];
 
 function makeMaterial(color) {
-    const mat = new THREE.MeshStandardMaterial({
+    return new THREE.MeshStandardMaterial({
+        color,
         roughness: 0.55,
         metalness: 0.0,
     });
-    mat.color.set(color).convertSRGBToLinear();
-    return mat;
 }
 
 function createBlock(sx, sy, sz, px, py, pz, color) {
@@ -263,32 +261,31 @@ for (let row = 0; row < starRows.length; row++) {
 }
 
 const BASE_GRAVITY = 12;
-let gyroGravity = { x: 0, y: -BASE_GRAVITY, z: 0 };
-let gravityEnabled = false;
+let gyroActive = false;
 
 setTimeout(() => {
-    gravityEnabled = true;
     world.gravity.set(0, -BASE_GRAVITY, 0);
     bodies.forEach(b => {
         b.wakeUp();
         b.velocity.set(
-            (Math.random() - 0.5) * 0.5,
-            (Math.random() - 0.5) * 0.2,
-            (Math.random() - 0.5) * 0.4
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.1,
+            (Math.random() - 0.5) * 0.2
         );
     });
+    setTimeout(() => { gyroActive = true; }, 1500);
 }, 1200);
 
 if (window.DeviceOrientationEvent) {
     const requestPermission = typeof DeviceOrientationEvent.requestPermission === 'function';
     const startListening = () => {
         window.addEventListener('deviceorientation', (e) => {
-            if (!gravityEnabled || e.gamma === null) return;
+            if (!gyroActive || e.gamma === null) return;
             const beta = (e.beta || 0) * Math.PI / 180;
             const gamma = (e.gamma || 0) * Math.PI / 180;
-            gyroGravity.x = Math.sin(gamma) * BASE_GRAVITY;
-            gyroGravity.y = -Math.cos(beta) * Math.cos(gamma) * BASE_GRAVITY;
-            world.gravity.set(gyroGravity.x, gyroGravity.y, 0);
+            const gx = Math.sin(gamma) * BASE_GRAVITY;
+            const gy = -Math.cos(beta) * Math.cos(gamma) * BASE_GRAVITY;
+            world.gravity.set(gx, gy, 0);
             bodies.forEach(b => b.wakeUp());
         });
     };
