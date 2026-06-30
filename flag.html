@@ -27,9 +27,9 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-const FLAG_RED = '#B22234';
-const FLAG_WHITE = '#FAFAFA';
-const FLAG_BLUE = '#002868';
+const FLAG_RED = '#FF0000';
+const FLAG_WHITE = '#FFFFFF';
+const FLAG_BLUE = '#0033A0';
 const BG_COLOR = '#f2f2f2';
 
 const portrait = window.innerWidth / window.innerHeight < 1;
@@ -47,11 +47,10 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.9;
+renderer.toneMapping = THREE.NoToneMapping;
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
 scene.add(ambientLight);
 
 const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -122,7 +121,7 @@ const meshes = [];
 function makeMaterial(color) {
     return new THREE.MeshStandardMaterial({
         color,
-        roughness: 0.55,
+        roughness: 0.85,
         metalness: 0.0,
     });
 }
@@ -132,8 +131,8 @@ function createBlock(sx, sy, sz, px, py, pz, color) {
     if (portrait) {
         bx = sy;
         by = sx;
-        fx = -py;
-        fy = px;
+        fx = py;
+        fy = -px;
     }
 
     const geo = new THREE.BoxGeometry(bx, by, sz);
@@ -188,7 +187,31 @@ const cantonY = flagTop - CANTON_H / 2;
 createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, 0.01, FLAG_BLUE);
 
 const starRows = [6, 5, 6, 5, 6, 5, 6, 5, 6];
-const starGeo = new THREE.BoxGeometry(STAR_SIZE, STAR_SIZE, STAR_SIZE);
+
+function createStarShape(radius) {
+    const shape = new THREE.Shape();
+    const inner = radius * 0.38;
+    for (let i = 0; i < 5; i++) {
+        const outerAngle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+        const innerAngle = outerAngle + Math.PI / 5;
+        const ox = Math.cos(outerAngle) * radius;
+        const oy = Math.sin(outerAngle) * radius;
+        const ix = Math.cos(innerAngle) * inner;
+        const iy = Math.sin(innerAngle) * inner;
+        if (i === 0) shape.moveTo(ox, oy);
+        else shape.lineTo(ox, oy);
+        shape.lineTo(ix, iy);
+    }
+    shape.closePath();
+    return shape;
+}
+
+const starShape = createStarShape(STAR_SIZE);
+const starGeo = new THREE.ExtrudeGeometry(starShape, {
+    depth: STAR_SIZE * 0.5,
+    bevelEnabled: false,
+});
+starGeo.center();
 const starMat = makeMaterial(FLAG_WHITE);
 
 for (let row = 0; row < starRows.length; row++) {
@@ -203,8 +226,8 @@ for (let row = 0; row < starRows.length; row++) {
 
         if (portrait) {
             const tmp = starX;
-            starX = -starY;
-            starY = tmp;
+            starX = starY;
+            starY = -tmp;
         }
 
         const mesh = new THREE.Mesh(starGeo, starMat);
@@ -213,7 +236,7 @@ for (let row = 0; row < starRows.length; row++) {
         mesh.position.set(starX, starY, starZ);
         scene.add(mesh);
 
-        const shape = new CANNON.Box(new CANNON.Vec3(STAR_SIZE / 2, STAR_SIZE / 2, STAR_SIZE / 2));
+        const shape = new CANNON.Sphere(STAR_SIZE * 0.6);
         const body = new CANNON.Body({ mass: 0.4, shape });
         body.position.set(starX, starY, starZ);
         body.linearDamping = 0.2;
@@ -235,7 +258,7 @@ setTimeout(() => {
             (Math.random() - 0.5) * 0.4
         );
     });
-}, 2200);
+}, 1200);
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
