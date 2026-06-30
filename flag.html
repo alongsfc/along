@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flag</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0a; }
+        canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+        canvas:active { cursor: grabbing; }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./lib/three.module.js",
+            "cannon-es": "./lib/cannon-es.js"
+        }
+    }
+    </script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+
+const FLAG_RED = '#B31942';
+const FLAG_WHITE = '#FFFFFF';
+const FLAG_BLUE = '#0A3161';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0a0a0a');
+scene.fog = new THREE.FogExp2('#0a0a0a', 0.035);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 2, 20);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.4;
+document.body.appendChild(renderer.domElement);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+scene.add(ambientLight);
+
+const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
+mainLight.position.set(6, 10, 8);
+mainLight.castShadow = true;
+mainLight.shadow.mapSize.set(2048, 2048);
+mainLight.shadow.camera.left = -15;
+mainLight.shadow.camera.right = 15;
+mainLight.shadow.camera.top = 15;
+mainLight.shadow.camera.bottom = -15;
+mainLight.shadow.camera.near = 0.5;
+mainLight.shadow.camera.far = 40;
+mainLight.shadow.bias = -0.0005;
+mainLight.shadow.normalBias = 0.02;
+scene.add(mainLight);
+
+const fillLight = new THREE.DirectionalLight(0x8899cc, 0.6);
+fillLight.position.set(-6, 3, -4);
+scene.add(fillLight);
+
+const rimLight = new THREE.PointLight(0xffeedd, 0.4, 30);
+rimLight.position.set(0, 8, -5);
+scene.add(rimLight);
+
+const world = new CANNON.World({
+    gravity: new CANNON.Vec3(0, 0, 0),
+    allowSleep: true,
+});
+world.broadphase = new CANNON.SAPBroadphase(world);
+world.defaultContactMaterial.friction = 0.5;
+world.defaultContactMaterial.restitution = 0.1;
+
+const groundY = -5.5;
+const groundBody = new CANNON.Body({ mass: 0 });
+groundBody.addShape(new CANNON.Plane());
+groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+groundBody.position.set(0, groundY, 0);
+world.addBody(groundBody);
+
+const groundGeo = new THREE.PlaneGeometry(60, 60);
+const groundMat = new THREE.MeshStandardMaterial({
+    color: '#0e0e0e',
+    roughness: 0.95,
+    metalness: 0,
+});
+const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+groundMesh.rotation.x = -Math.PI / 2;
+groundMesh.position.y = groundY;
+groundMesh.receiveShadow = true;
+scene.add(groundMesh);
+
+function addWall(px, py, pz, qx, qy, qz) {
+    const wall = new CANNON.Body({ mass: 0 });
+    wall.addShape(new CANNON.Plane());
+    wall.quaternion.setFromEuler(qx, qy, qz);
+    wall.position.set(px, py, pz);
+    world.addBody(wall);
+}
+addWall(-12, 0, 0, 0, Math.PI / 2, 0);
+addWall(12, 0, 0, 0, -Math.PI / 2, 0);
+addWall(0, 0, -3, 0, 0, 0);
+addWall(0, 0, 8, 0, Math.PI, 0);
+addWall(0, 15, 0, Math.PI / 2, 0, 0);
+
+const bodies = [];
+const meshes = [];
+
+function makeMaterial(color) {
+    return new THREE.MeshStandardMaterial({
+        color,
+        roughness: 0.3,
+        metalness: 0.02,
+    });
+}
+
+function createBlock(sx, sy, sz, px, py, pz, color) {
+    const geo = new THREE.BoxGeometry(sx, sy, sz);
+    const mat = makeMaterial(color);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.position.set(px, py, pz);
+    scene.add(mesh);
+
+    const shape = new CANNON.Box(new CANNON.Vec3(sx / 2, sy / 2, sz / 2));
+    const body = new CANNON.Body({ mass: Math.max(sx * sy * sz * 3, 0.5), shape });
+    body.position.set(px, py, pz);
+    body.linearDamping = 0.2;
+    body.angularDamping = 0.3;
+    world.addBody(body);
+
+    bodies.push(body);
+    meshes.push(mesh);
+    return { mesh, body };
+}
+
+const GAP = 0.06;
+const FLAG_W = 10;
+const FLAG_H = FLAG_W / 1.9;
+const STRIPE_H = (FLAG_H - 12 * GAP) / 13;
+const STRIPE_DEPTH = 0.35;
+const CANTON_W = FLAG_W * 0.4;
+const CANTON_STRIPES = 7;
+const CANTON_H = CANTON_STRIPES * STRIPE_H + (CANTON_STRIPES - 1) * GAP;
+const STAR_SIZE = 0.24;
+
+const flagLeft = -FLAG_W / 2;
+const flagTop = FLAG_H / 2;
+
+for (let i = 0; i < 13; i++) {
+    const color = i % 2 === 0 ? FLAG_RED : FLAG_WHITE;
+    const y = flagTop - STRIPE_H / 2 - i * (STRIPE_H + GAP);
+
+    const inCanton = i < 7;
+    if (inCanton) {
+        const stripeW = FLAG_W - CANTON_W - GAP;
+        const x = flagLeft + CANTON_W + GAP + stripeW / 2;
+        createBlock(stripeW, STRIPE_H, STRIPE_DEPTH, x, y, 0, color);
+    } else {
+        createBlock(FLAG_W, STRIPE_H, STRIPE_DEPTH, 0, y, 0, color);
+    }
+}
+
+const cantonX = flagLeft + CANTON_W / 2;
+const cantonY = flagTop - CANTON_H / 2;
+createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, 0.01, FLAG_BLUE);
+
+const starRows = [6, 5, 6, 5, 6, 5, 6, 5, 6];
+const starGeo = new THREE.BoxGeometry(STAR_SIZE, STAR_SIZE, STAR_SIZE);
+const starMat = makeMaterial(FLAG_WHITE);
+
+for (let row = 0; row < starRows.length; row++) {
+    const count = starRows[row];
+    const rowY = cantonY + CANTON_H / 2 - (CANTON_H / 10) * (row + 1);
+    const offsetX = count === 6 ? 0 : (CANTON_W / 12);
+
+    for (let col = 0; col < count; col++) {
+        const starX = flagLeft + (CANTON_W / 12) + (CANTON_W / 6) * col + offsetX;
+        const starY = rowY;
+        const starZ = STRIPE_DEPTH / 2 + STAR_SIZE / 2 + 0.04;
+
+        const mesh = new THREE.Mesh(starGeo, starMat);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.position.set(starX, starY, starZ);
+        scene.add(mesh);
+
+        const shape = new CANNON.Box(new CANNON.Vec3(STAR_SIZE / 2, STAR_SIZE / 2, STAR_SIZE / 2));
+        const body = new CANNON.Body({ mass: 0.4, shape });
+        body.position.set(starX, starY, starZ);
+        body.linearDamping = 0.2;
+        body.angularDamping = 0.3;
+        world.addBody(body);
+
+        bodies.push(body);
+        meshes.push(mesh);
+    }
+}
+
+setTimeout(() => {
+    world.gravity.set(0, -12, 0);
+    bodies.forEach(b => {
+        b.wakeUp();
+        b.velocity.set(
+            (Math.random() - 0.5) * 0.5,
+            (Math.random() - 0.5) * 0.2,
+            (Math.random() - 0.5) * 0.4
+        );
+    });
+}, 2200);
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let draggedBody = null;
+let dragConstraint = null;
+const dragPlane = new THREE.Plane();
+const jointBody = new CANNON.Body({ mass: 0 });
+world.addBody(jointBody);
+
+function getPointer(e) {
+    const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
+    mouse.x = (t.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(t.clientY / window.innerHeight) * 2 + 1;
+}
+
+function onPointerDown(e) {
+    e.preventDefault();
+    getPointer(e);
+    raycaster.setFromCamera(mouse, camera);
+
+    const hits = raycaster.intersectObjects(meshes);
+    if (hits.length === 0) return;
+
+    const hitMesh = hits[0].object;
+    const idx = meshes.indexOf(hitMesh);
+    if (idx === -1) return;
+
+    draggedBody = bodies[idx];
+    draggedBody.wakeUp();
+
+    const hitPoint = hits[0].point;
+    dragPlane.setFromNormalAndCoplanarPoint(
+        camera.getWorldDirection(new THREE.Vector3()).negate(),
+        hitPoint
+    );
+
+    jointBody.position.copy(draggedBody.position);
+
+    dragConstraint = new CANNON.PointToPointConstraint(
+        draggedBody,
+        new CANNON.Vec3(0, 0, 0),
+        jointBody,
+        new CANNON.Vec3(0, 0, 0),
+        12
+    );
+    world.addConstraint(dragConstraint);
+}
+
+function onPointerMove(e) {
+    if (!dragConstraint) return;
+    e.preventDefault();
+    getPointer(e);
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersection = new THREE.Vector3();
+    raycaster.ray.intersectPlane(dragPlane, intersection);
+    if (intersection) {
+        jointBody.position.set(intersection.x, intersection.y, intersection.z);
+        draggedBody.wakeUp();
+    }
+}
+
+function onPointerUp() {
+    if (dragConstraint) {
+        world.removeConstraint(dragConstraint);
+        dragConstraint = null;
+        draggedBody = null;
+    }
+}
+
+renderer.domElement.addEventListener('mousedown', onPointerDown);
+renderer.domElement.addEventListener('mousemove', onPointerMove);
+renderer.domElement.addEventListener('mouseup', onPointerUp);
+renderer.domElement.addEventListener('touchstart', onPointerDown, { passive: false });
+renderer.domElement.addEventListener('touchmove', onPointerMove, { passive: false });
+renderer.domElement.addEventListener('touchend', onPointerUp);
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+const fixedStep = 1 / 60;
+const cameraOrigin = camera.position.clone();
+let lastTime = performance.now();
+let elapsed = 0;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    const now = performance.now();
+    const delta = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+    elapsed += delta;
+
+    world.step(fixedStep, delta, 3);
+
+    for (let i = 0; i < bodies.length; i++) {
+        meshes[i].position.copy(bodies[i].position);
+        meshes[i].quaternion.copy(bodies[i].quaternion);
+    }
+
+    if (!dragConstraint) {
+        camera.position.x = cameraOrigin.x + Math.sin(elapsed * 0.15) * 0.6;
+        camera.position.y = cameraOrigin.y + Math.sin(elapsed * 0.1) * 0.3;
+        camera.lookAt(0, -1, 0);
+    }
+
+    renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+</html>
