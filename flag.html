@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0a; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #f2f2f2; }
         canvas { display: block; width: 100%; height: 100%; cursor: grab; }
         canvas:active { cursor: grabbing; }
     </style>
@@ -27,16 +27,19 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-const FLAG_RED = '#B31942';
-const FLAG_WHITE = '#FFFFFF';
-const FLAG_BLUE = '#0A3161';
+const FLAG_RED = '#B22234';
+const FLAG_WHITE = '#FAFAFA';
+const FLAG_BLUE = '#002868';
+const BG_COLOR = '#f2f2f2';
+
+const portrait = window.innerWidth / window.innerHeight < 1;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#0a0a0a');
-scene.fog = new THREE.FogExp2('#0a0a0a', 0.035);
+scene.background = new THREE.Color(BG_COLOR);
+scene.fog = new THREE.FogExp2(BG_COLOR, 0.04);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 2, 20);
+camera.position.set(0, 2, portrait ? 26 : 20);
 camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -45,13 +48,13 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.4;
+renderer.toneMappingExposure = 0.9;
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
 
-const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
+const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
 mainLight.position.set(6, 10, 8);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
@@ -65,11 +68,11 @@ mainLight.shadow.bias = -0.0005;
 mainLight.shadow.normalBias = 0.02;
 scene.add(mainLight);
 
-const fillLight = new THREE.DirectionalLight(0x8899cc, 0.6);
+const fillLight = new THREE.DirectionalLight(0xdde4f0, 0.4);
 fillLight.position.set(-6, 3, -4);
 scene.add(fillLight);
 
-const rimLight = new THREE.PointLight(0xffeedd, 0.4, 30);
+const rimLight = new THREE.PointLight(0xffeedd, 0.3, 30);
 rimLight.position.set(0, 8, -5);
 scene.add(rimLight);
 
@@ -90,7 +93,7 @@ world.addBody(groundBody);
 
 const groundGeo = new THREE.PlaneGeometry(60, 60);
 const groundMat = new THREE.MeshStandardMaterial({
-    color: '#0e0e0e',
+    color: '#f0f0f0',
     roughness: 0.95,
     metalness: 0,
 });
@@ -119,23 +122,31 @@ const meshes = [];
 function makeMaterial(color) {
     return new THREE.MeshStandardMaterial({
         color,
-        roughness: 0.3,
-        metalness: 0.02,
+        roughness: 0.55,
+        metalness: 0.0,
     });
 }
 
 function createBlock(sx, sy, sz, px, py, pz, color) {
-    const geo = new THREE.BoxGeometry(sx, sy, sz);
+    let bx = sx, by = sy, fx = px, fy = py;
+    if (portrait) {
+        bx = sy;
+        by = sx;
+        fx = -py;
+        fy = px;
+    }
+
+    const geo = new THREE.BoxGeometry(bx, by, sz);
     const mat = makeMaterial(color);
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    mesh.position.set(px, py, pz);
+    mesh.position.set(fx, fy, pz);
     scene.add(mesh);
 
-    const shape = new CANNON.Box(new CANNON.Vec3(sx / 2, sy / 2, sz / 2));
-    const body = new CANNON.Body({ mass: Math.max(sx * sy * sz * 3, 0.5), shape });
-    body.position.set(px, py, pz);
+    const shape = new CANNON.Box(new CANNON.Vec3(bx / 2, by / 2, sz / 2));
+    const body = new CANNON.Body({ mass: Math.max(bx * by * sz * 3, 0.5), shape });
+    body.position.set(fx, fy, pz);
     body.linearDamping = 0.2;
     body.angularDamping = 0.3;
     world.addBody(body);
@@ -186,9 +197,15 @@ for (let row = 0; row < starRows.length; row++) {
     const offsetX = count === 6 ? 0 : (CANTON_W / 12);
 
     for (let col = 0; col < count; col++) {
-        const starX = flagLeft + (CANTON_W / 12) + (CANTON_W / 6) * col + offsetX;
-        const starY = rowY;
+        let starX = flagLeft + (CANTON_W / 12) + (CANTON_W / 6) * col + offsetX;
+        let starY = rowY;
         const starZ = STRIPE_DEPTH / 2 + STAR_SIZE / 2 + 0.04;
+
+        if (portrait) {
+            const tmp = starX;
+            starX = -starY;
+            starY = tmp;
+        }
 
         const mesh = new THREE.Mesh(starGeo, starMat);
         mesh.castShadow = true;
