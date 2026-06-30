@@ -51,11 +51,11 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NoToneMapping;
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
-const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
-mainLight.position.set(5, 8, 10);
+const mainLight = new THREE.DirectionalLight(0xffffff, 1.4);
+mainLight.position.set(2, 5, 12);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
 mainLight.shadow.camera.left = -15;
@@ -68,8 +68,8 @@ mainLight.shadow.bias = -0.0005;
 mainLight.shadow.normalBias = 0.02;
 scene.add(mainLight);
 
-const fillLight = new THREE.DirectionalLight(0xdde4f0, 0.3);
-fillLight.position.set(-5, 2, -4);
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+fillLight.position.set(-4, 3, 6);
 scene.add(fillLight);
 
 const world = new CANNON.World({
@@ -177,12 +177,13 @@ const CANTON_STRIPES = 7;
 const CANTON_H = CANTON_STRIPES * STRIPE_H + (CANTON_STRIPES - 1) * GAP;
 const STAR_SIZE = 0.24;
 
+const FLAG_Y_OFFSET = 2;
 const flagLeft = -FLAG_W / 2;
 const flagTop = FLAG_H / 2;
 
 for (let i = 0; i < 13; i++) {
     const color = i % 2 === 0 ? FLAG_RED : FLAG_WHITE;
-    const y = flagTop - STRIPE_H / 2 - i * (STRIPE_H + GAP);
+    const y = flagTop - STRIPE_H / 2 - i * (STRIPE_H + GAP) + FLAG_Y_OFFSET;
 
     const inCanton = i < 7;
     if (inCanton) {
@@ -195,7 +196,7 @@ for (let i = 0; i < 13; i++) {
 }
 
 const cantonX = flagLeft + CANTON_W / 2;
-const cantonY = flagTop - CANTON_H / 2;
+const cantonY = flagTop - CANTON_H / 2 + FLAG_Y_OFFSET;
 createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, 0.01, FLAG_BLUE);
 
 const starRows = [6, 5, 6, 5, 6, 5, 6, 5, 6];
@@ -277,8 +278,7 @@ setTimeout(() => {
     setTimeout(() => { gyroActive = true; }, 1500);
 }, 1200);
 
-if (window.DeviceOrientationEvent) {
-    const requestPermission = typeof DeviceOrientationEvent.requestPermission === 'function';
+if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
     const startListening = () => {
         window.addEventListener('deviceorientation', (e) => {
             if (!gyroActive || e.gamma === null) return;
@@ -291,17 +291,16 @@ if (window.DeviceOrientationEvent) {
         });
     };
 
-    if (requestPermission) {
-        const requestOnTouch = () => {
+    const activateGyro = () => {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
             DeviceOrientationEvent.requestPermission()
                 .then(state => { if (state === 'granted') startListening(); })
                 .catch(() => {});
-            document.removeEventListener('touchstart', requestOnTouch);
-        };
-        document.addEventListener('touchstart', requestOnTouch, { once: true });
-    } else {
-        startListening();
-    }
+        } else {
+            startListening();
+        }
+    };
+    document.addEventListener('touchstart', activateGyro, { once: true });
 }
 
 const raycaster = new THREE.Raycaster();
