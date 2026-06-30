@@ -48,7 +48,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1;
+renderer.toneMappingExposure = 0.85;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
@@ -59,7 +59,7 @@ scene.environment = pmremGenerator.fromScene(roomEnv, 0.04).texture;
 roomEnv.dispose();
 pmremGenerator.dispose();
 
-const mainLight = new THREE.DirectionalLight(0xffffff, 0.5);
+const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
 mainLight.position.set(5, 10, 12);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
@@ -143,8 +143,8 @@ const meshes = [];
 function makeMaterial(color) {
     return new THREE.MeshStandardMaterial({
         color,
-        roughness: 0.6,
-        metalness: 0.05,
+        roughness: 0.5,
+        metalness: 0.08,
     });
 }
 
