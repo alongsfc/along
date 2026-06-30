@@ -27,8 +27,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-THREE.ColorManagement.enabled = false;
-
 const FLAG_RED = '#B31942';
 const FLAG_WHITE = '#FFFFFF';
 const FLAG_BLUE = '#002868';
@@ -37,8 +35,9 @@ const BG_COLOR = '#f2f2f2';
 const portrait = window.innerWidth / window.innerHeight < 1;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(BG_COLOR);
-scene.fog = new THREE.FogExp2(BG_COLOR, 0.025);
+const bgColor = new THREE.Color(BG_COLOR).convertSRGBToLinear();
+scene.background = bgColor;
+scene.fog = new THREE.FogExp2(bgColor, 0.025);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 0, portrait ? 22 : 18);
@@ -49,13 +48,13 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NoToneMapping;
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
 scene.add(ambientLight);
 
-const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
 mainLight.position.set(5, 8, 10);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
@@ -89,9 +88,9 @@ function getFrustumBounds() {
     return { halfW, halfH };
 }
 
-const { halfW, halfH } = getFrustumBounds();
+const { halfW } = getFrustumBounds();
 
-const groundY = -halfH - 0.5;
+const groundY = -3;
 const groundBody = new CANNON.Body({ mass: 0 });
 groundBody.addShape(new CANNON.Plane());
 groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
@@ -100,10 +99,10 @@ world.addBody(groundBody);
 
 const groundGeo = new THREE.PlaneGeometry(80, 80);
 const groundMat = new THREE.MeshStandardMaterial({
-    color: BG_COLOR,
     roughness: 1.0,
     metalness: 0,
 });
+groundMat.color.set(BG_COLOR).convertSRGBToLinear();
 const groundMesh = new THREE.Mesh(groundGeo, groundMat);
 groundMesh.rotation.x = -Math.PI / 2;
 groundMesh.position.y = groundY;
@@ -122,19 +121,19 @@ function addWall(px, py, pz, qx, qy, qz) {
 
 addWall(-(halfW + 0.5), 0, 0, 0, Math.PI / 2, 0);
 addWall(halfW + 0.5, 0, 0, 0, -Math.PI / 2, 0);
-addWall(0, 0, -20, 0, 0, 0);
+addWall(0, 0, -3, 0, 0, 0);
 addWall(0, 0, 8, 0, Math.PI, 0);
-addWall(0, halfH + 0.5, 0, Math.PI / 2, 0, 0);
 
 const bodies = [];
 const meshes = [];
 
 function makeMaterial(color) {
-    return new THREE.MeshStandardMaterial({
-        color,
-        roughness: 0.6,
+    const mat = new THREE.MeshStandardMaterial({
+        roughness: 0.55,
         metalness: 0.0,
     });
+    mat.color.set(color).convertSRGBToLinear();
+    return mat;
 }
 
 function createBlock(sx, sy, sz, px, py, pz, color) {
@@ -224,7 +223,7 @@ const starGeo = new THREE.ExtrudeGeometry(starShape, {
 });
 starGeo.center();
 starGeo.rotateZ(Math.PI);
-const starMat = makeMaterial(FLAG_WHITE);
+const starMat = makeMaterial('#FFFFFF');
 
 for (let row = 0; row < starRows.length; row++) {
     const count = starRows[row];
@@ -385,12 +384,9 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const { halfW, halfH } = getFrustumBounds();
+    const { halfW } = getFrustumBounds();
     wallBodies[0].position.set(-(halfW + 0.5), 0, 0);
     wallBodies[1].position.set(halfW + 0.5, 0, 0);
-    wallBodies[4].position.set(0, halfH + 0.5, 0);
-    groundBody.position.set(0, -(halfH + 0.5), 0);
-    groundMesh.position.y = -(halfH + 0.5);
 });
 
 const fixedStep = 1 / 60;
