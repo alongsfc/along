@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flag</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #f2f2f2; }
+        canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+        canvas:active { cursor: grabbing; }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./lib/three.module.js",
+            "cannon-es": "./lib/cannon-es.js",
+            "room-env": "./lib/RoomEnvironment.js"
+        }
+    }
+    </script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+import { RoomEnvironment } from 'room-env';
+
+const FLAG_RED = '#B31942';
+const FLAG_WHITE = '#FFFFFF';
+const FLAG_BLUE = '#002868';
+const BG_COLOR = '#f2f2f2';
+
+const portrait = window.innerWidth / window.innerHeight < 1;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(BG_COLOR);
+scene.fog = new THREE.FogExp2(BG_COLOR, 0.025);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 2, portrait ? 28 : 18);
+camera.lookAt(0, 2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+const roomEnv = new RoomEnvironment();
+scene.environment = pmremGenerator.fromScene(roomEnv, 0.04).texture;
+roomEnv.dispose();
+pmremGenerator.dispose();
+
+const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+mainLight.position.set(5, 10, 12);
+mainLight.castShadow = true;
+mainLight.shadow.mapSize.set(2048, 2048);
+mainLight.shadow.camera.left = -15;
+mainLight.shadow.camera.right = 15;
+mainLight.shadow.camera.top = 15;
+mainLight.shadow.camera.bottom = -15;
+mainLight.shadow.camera.near = 0.5;
+mainLight.shadow.camera.far = 40;
+mainLight.shadow.bias = -0.0005;
+mainLight.shadow.normalBias = 0.02;
+scene.add(mainLight);
+
+const world = new CANNON.World({
+    gravity: new CANNON.Vec3(0, 0, 0),
+    allowSleep: true,
+});
+world.broadphase = new CANNON.SAPBroadphase(world);
+world.defaultContactMaterial.friction = 0.5;
+world.defaultContactMaterial.restitution = 0.1;
+
+function getFrustumBounds() {
+    const vFov = camera.fov * Math.PI / 180;
+    const dist = camera.position.z;
+    const halfH = Math.tan(vFov / 2) * dist;
+    const halfW = halfH * camera.aspect;
+    return { halfW, halfH };
+}
+
+const GROUP_STRIPE = 1;
+const GROUP_CANTON = 2;
+const GROUP_STAR = 4;
+const GROUP_WALL = 8;
+
+const { halfW } = getFrustumBounds();
+
+const groundY = -3;
+const groundBody = new CANNON.Body({ mass: 0 });
+groundBody.addShape(new CANNON.Plane());
+groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+groundBody.position.set(0, groundY, 0);
+groundBody.collisionFilterGroup = GROUP_WALL;
+groundBody.collisionFilterMask = -1;
+world.addBody(groundBody);
+
+const groundGeo = new THREE.PlaneGeometry(80, 80);
+const groundMat = new THREE.MeshStandardMaterial({
+    color: BG_COLOR,
+    roughness: 1.0,
+    metalness: 0,
+});
+const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+groundMesh.rotation.x = -Math.PI / 2;
+groundMesh.position.y = groundY;
+groundMesh.receiveShadow = true;
+scene.add(groundMesh);
+
+const wallBodies = [];
+function addWall(px, py, pz, qx, qy, qz) {
+    const wall = new CANNON.Body({ mass: 0 });
+    wall.addShape(new CANNON.Plane());
+    wall.quaternion.setFromEuler(qx, qy, qz);
+    wall.position.set(px, py, pz);
+    wall.collisionFilterGroup = GROUP_WALL;
+    wall.collisionFilterMask = -1;
+    world.addBody(wall);
+    wallBodies.push(wall);
+}
+
+addWall(-(halfW + 0.5), 0, 0, 0, Math.PI / 2, 0);
+addWall(halfW + 0.5, 0, 0, 0, -Math.PI / 2, 0);
+addWall(0, 0, -3, 0, 0, 0);
+addWall(0, 0, 8, 0, Math.PI, 0);
+
+const { halfH } = getFrustumBounds();
+addWall(0, halfH + 0.5, 0, Math.PI / 2, 0, 0);
+
+const bodies = [];
+const meshes = [];
+
+function makeMaterial(color) {
+    return new THREE.MeshStandardMaterial({
+        color,
+        roughness: 0.5,
+        metalness: 0.08,
+    });
+}
+
+function createBlock(sx, sy, sz, px, py, pz, color, group) {
+    let bx = sx, by = sy, fx = px, fy = py;
+    if (portrait) {
+        bx = sy;
+        by = sx;
+        fx = py;
+        fy = -px;
+    }
+    fy += FLAG_Y_OFFSET;
+
+    const geo = new THREE.BoxGeometry(bx, by, sz);
+    const mat = makeMaterial(color);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.position.set(fx, fy, pz);
+    scene.add(mesh);
+
+    const shape = new CANNON.Box(new CANNON.Vec3(bx / 2, by / 2, sz / 2));
+    const body = new CANNON.Body({ mass: Math.max(bx * by * sz * 3, 0.5), shape });
+    body.position.set(fx, fy, pz);
+    body.linearDamping = 0.2;
+    body.angularDamping = 0.3;
+    body.collisionFilterGroup = group;
+    body.collisionFilterMask = group | GROUP_WALL;
+    world.addBody(body);
+
+    bodies.push(body);
+    meshes.push(mesh);
+    return { mesh, body };
+}
+
+const GAP = 0.06;
+const FLAG_W = 10;
+const FLAG_H = FLAG_W / 1.9;
+const STRIPE_H = (FLAG_H - 12 * GAP) / 13;
+const STRIPE_DEPTH = 0.35;
+const CANTON_W = FLAG_W * 0.4;
+const CANTON_STRIPES = 7;
+const CANTON_H = CANTON_STRIPES * STRIPE_H + (CANTON_STRIPES - 1) * GAP;
+const STAR_SIZE = 0.24;
+const FLAG_Y_OFFSET = 2;
+
+const flagLeft = -FLAG_W / 2;
+const flagTop = FLAG_H / 2;
+
+for (let i = 0; i < 13; i++) {
+    const color = i % 2 === 0 ? FLAG_RED : FLAG_WHITE;
+    const y = flagTop - STRIPE_H / 2 - i * (STRIPE_H + GAP);
+
+    const inCanton = i < 7;
+    if (inCanton) {
+        const stripeW = FLAG_W - CANTON_W - GAP;
+        const x = flagLeft + CANTON_W + GAP + stripeW / 2;
+        createBlock(stripeW, STRIPE_H, STRIPE_DEPTH, x, y, 0, color, GROUP_STRIPE);
+    } else {
+        createBlock(FLAG_W, STRIPE_H, STRIPE_DEPTH, 0, y, 0, color, GROUP_STRIPE);
+    }
+}
+
+const cantonX = flagLeft + CANTON_W / 2;
+const cantonY = flagTop - CANTON_H / 2;
+createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, 0.01, FLAG_BLUE, GROUP_CANTON);
+
+const starRows = [6, 5, 6, 5, 6, 5, 6, 5, 6];
+
+function createStarShape(radius) {
+    const shape = new THREE.Shape();
+    const inner = radius * 0.38;
+    for (let i = 0; i < 5; i++) {
+        const outerAngle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+        const innerAngle = outerAngle + Math.PI / 5;
+        const ox = Math.cos(outerAngle) * radius;
+        const oy = Math.sin(outerAngle) * radius;
+        const ix = Math.cos(innerAngle) * inner;
+        const iy = Math.sin(innerAngle) * inner;
+        if (i === 0) shape.moveTo(ox, oy);
+        else shape.lineTo(ox, oy);
+        shape.lineTo(ix, iy);
+    }
+    shape.closePath();
+    return shape;
+}
+
+const starShape = createStarShape(STAR_SIZE);
+const starGeo = new THREE.ExtrudeGeometry(starShape, {
+    depth: STAR_SIZE * 0.5,
+    bevelEnabled: false,
+});
+starGeo.center();
+starGeo.rotateZ(Math.PI);
+const starMat = makeMaterial('#FFFFFF');
+
+for (let row = 0; row < starRows.length; row++) {
+    const count = starRows[row];
+    const rowY = cantonY + CANTON_H / 2 - (CANTON_H / 10) * (row + 1);
+    const offsetX = count === 6 ? 0 : (CANTON_W / 12);
+
+    for (let col = 0; col < count; col++) {
+        let starX = flagLeft + (CANTON_W / 12) + (CANTON_W / 6) * col + offsetX;
+        let starY = rowY;
+        const starZ = STRIPE_DEPTH / 2 + STAR_SIZE / 2 + 0.05;
+
+        if (portrait) {
+            const tmp = starX;
+            starX = starY;
+            starY = -tmp;
+        }
+        starY += FLAG_Y_OFFSET;
+
+        const mesh = new THREE.Mesh(starGeo, starMat);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.position.set(starX, starY, starZ);
+        scene.add(mesh);
+
+        const shape = new CANNON.Cylinder(STAR_SIZE, STAR_SIZE, STAR_SIZE * 0.5, 10);
+        const body = new CANNON.Body({ mass: 0.4, shape });
+        body.position.set(starX, starY, starZ);
+        body.linearDamping = 0.2;
+        body.angularDamping = 0.3;
+        body.collisionFilterGroup = GROUP_STAR;
+        body.collisionFilterMask = GROUP_STAR | GROUP_WALL;
+        world.addBody(body);
+
+        bodies.push(body);
+        meshes.push(mesh);
+    }
+}
+
+const BASE_GRAVITY = 12;
+let physicsStarted = false;
+let gyroActive = false;
+
+bodies.forEach(b => b.sleep());
+
+setTimeout(() => {
+    physicsStarted = true;
+    world.gravity.set(0, -BASE_GRAVITY, 0);
+    bodies.forEach(b => {
+        b.wakeUp();
+        b.velocity.set(
+            (Math.random() - 0.5) * 0.4,
+            (Math.random() - 0.5) * 0.2,
+            (Math.random() - 0.5) * 0.3
+        );
+    });
+    setTimeout(() => {
+        bodies.forEach(b => {
+            b.collisionFilterMask = -1;
+        });
+        gyroActive = true;
+    }, 2000);
+}, 1200);
+
+if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
+    const startListening = () => {
+        window.addEventListener('deviceorientation', (e) => {
+            if (!gyroActive || e.gamma === null) return;
+            const beta = (e.beta || 0) * Math.PI / 180;
+            const gamma = (e.gamma || 0) * Math.PI / 180;
+            const gx = Math.sin(gamma) * BASE_GRAVITY;
+            const gy = -Math.cos(beta) * Math.cos(gamma) * BASE_GRAVITY;
+            world.gravity.set(gx, gy, 0);
+            bodies.forEach(b => b.wakeUp());
+        });
+    };
+
+    const activateGyro = () => {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(state => { if (state === 'granted') startListening(); })
+                .catch(() => {});
+        } else {
+            startListening();
+        }
+    };
+    document.addEventListener('touchstart', activateGyro, { once: true });
+}
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let draggedBody = null;
+let dragConstraint = null;
+const dragPlane = new THREE.Plane();
+const jointBody = new CANNON.Body({ mass: 0 });
+world.addBody(jointBody);
+
+function getPointer(e) {
+    const t = e.touches ? e.touches[0] || e.changedTouches[0] : e;
+    mouse.x = (t.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(t.clientY / window.innerHeight) * 2 + 1;
+}
+
+function onPointerDown(e) {
+    e.preventDefault();
+    getPointer(e);
+    raycaster.setFromCamera(mouse, camera);
+
+    const hits = raycaster.intersectObjects(meshes);
+    if (hits.length === 0) return;
+
+    const hitMesh = hits[0].object;
+    const idx = meshes.indexOf(hitMesh);
+    if (idx === -1) return;
+
+    draggedBody = bodies[idx];
+    draggedBody.wakeUp();
+
+    const hitPoint = hits[0].point;
+    dragPlane.setFromNormalAndCoplanarPoint(
+        camera.getWorldDirection(new THREE.Vector3()).negate(),
+        hitPoint
+    );
+
+    jointBody.position.copy(draggedBody.position);
+
+    dragConstraint = new CANNON.PointToPointConstraint(
+        draggedBody,
+        new CANNON.Vec3(0, 0, 0),
+        jointBody,
+        new CANNON.Vec3(0, 0, 0),
+        12
+    );
+    world.addConstraint(dragConstraint);
+}
+
+function onPointerMove(e) {
+    if (!dragConstraint) return;
+    e.preventDefault();
+    getPointer(e);
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersection = new THREE.Vector3();
+    raycaster.ray.intersectPlane(dragPlane, intersection);
+    if (intersection) {
+        jointBody.position.set(intersection.x, intersection.y, intersection.z);
+        draggedBody.wakeUp();
+    }
+}
+
+function onPointerUp() {
+    if (dragConstraint) {
+        world.removeConstraint(dragConstraint);
+        dragConstraint = null;
+        draggedBody = null;
+    }
+}
+
+renderer.domElement.addEventListener('mousedown', onPointerDown);
+renderer.domElement.addEventListener('mousemove', onPointerMove);
+renderer.domElement.addEventListener('mouseup', onPointerUp);
+renderer.domElement.addEventListener('touchstart', onPointerDown, { passive: false });
+renderer.domElement.addEventListener('touchmove', onPointerMove, { passive: false });
+renderer.domElement.addEventListener('touchend', onPointerUp);
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const { halfW, halfH } = getFrustumBounds();
+    wallBodies[0].position.set(-(halfW + 0.5), 0, 0);
+    wallBodies[1].position.set(halfW + 0.5, 0, 0);
+    wallBodies[4].position.set(0, halfH + 0.5, 0);
+});
+
+const fixedStep = 1 / 60;
+const cameraOrigin = camera.position.clone();
+let lastTime = performance.now();
+let elapsed = 0;
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    const now = performance.now();
+    const delta = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+    elapsed += delta;
+
+    if (physicsStarted) world.step(fixedStep, delta, 3);
+
+    for (let i = 0; i < bodies.length; i++) {
+        meshes[i].position.copy(bodies[i].position);
+        meshes[i].quaternion.copy(bodies[i].quaternion);
+    }
+
+    if (!dragConstraint) {
+        camera.position.x = cameraOrigin.x + Math.sin(elapsed * 0.15) * 0.4;
+        camera.position.y = cameraOrigin.y + Math.sin(elapsed * 0.1) * 0.2;
+        camera.lookAt(0, 0.5, 0);
+    }
+
+    renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+</html>
