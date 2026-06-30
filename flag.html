@@ -264,7 +264,7 @@ for (let row = 0; row < starRows.length; row++) {
         mesh.position.set(starX, starY, starZ);
         scene.add(mesh);
 
-        const shape = new CANNON.Sphere(STAR_SIZE * 0.6);
+        const shape = new CANNON.Cylinder(STAR_SIZE, STAR_SIZE, STAR_SIZE * 0.5, 10);
         const body = new CANNON.Body({ mass: 0.4, shape });
         body.position.set(starX, starY, starZ);
         body.linearDamping = 0.2;
