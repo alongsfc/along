@@ -39,7 +39,7 @@ scene.background = new THREE.Color(BG_COLOR);
 scene.fog = new THREE.FogExp2(BG_COLOR, 0.025);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 2, portrait ? 30 : 18);
+camera.position.set(0, 2, portrait ? 28 : 18);
 camera.lookAt(0, 2, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -49,11 +49,11 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0x999999);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
 scene.add(ambientLight);
 
-const mainLight = new THREE.DirectionalLight(0xffffff, 3);
-mainLight.position.set(0.5, 0.5, 1);
+const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+mainLight.position.set(5, 8, 12);
 mainLight.castShadow = true;
 mainLight.shadow.mapSize.set(2048, 2048);
 mainLight.shadow.camera.left = -15;
@@ -65,6 +65,10 @@ mainLight.shadow.camera.far = 40;
 mainLight.shadow.bias = -0.0005;
 mainLight.shadow.normalBias = 0.02;
 scene.add(mainLight);
+
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+fillLight.position.set(-5, 3, 8);
+scene.add(fillLight);
 
 const world = new CANNON.World({
     gravity: new CANNON.Vec3(0, 0, 0),
@@ -138,6 +142,7 @@ function createBlock(sx, sy, sz, px, py, pz, color) {
         fx = py;
         fy = -px;
     }
+    fy += FLAG_Y_OFFSET;
 
     const geo = new THREE.BoxGeometry(bx, by, sz);
     const mat = makeMaterial(color);
@@ -159,7 +164,7 @@ function createBlock(sx, sy, sz, px, py, pz, color) {
     return { mesh, body };
 }
 
-const GAP = 0.06;
+const GAP = 0.12;
 const FLAG_W = 10;
 const FLAG_H = FLAG_W / 1.9;
 const STRIPE_H = (FLAG_H - 12 * GAP) / 13;
@@ -168,14 +173,14 @@ const CANTON_W = FLAG_W * 0.4;
 const CANTON_STRIPES = 7;
 const CANTON_H = CANTON_STRIPES * STRIPE_H + (CANTON_STRIPES - 1) * GAP;
 const STAR_SIZE = 0.24;
-
 const FLAG_Y_OFFSET = 2;
+
 const flagLeft = -FLAG_W / 2;
 const flagTop = FLAG_H / 2;
 
 for (let i = 0; i < 13; i++) {
     const color = i % 2 === 0 ? FLAG_RED : FLAG_WHITE;
-    const y = flagTop - STRIPE_H / 2 - i * (STRIPE_H + GAP) + FLAG_Y_OFFSET;
+    const y = flagTop - STRIPE_H / 2 - i * (STRIPE_H + GAP);
 
     const inCanton = i < 7;
     if (inCanton) {
@@ -188,8 +193,8 @@ for (let i = 0; i < 13; i++) {
 }
 
 const cantonX = flagLeft + CANTON_W / 2;
-const cantonY = flagTop - CANTON_H / 2 + FLAG_Y_OFFSET;
-createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, 0.01, FLAG_BLUE);
+const cantonY = flagTop - CANTON_H / 2;
+createBlock(CANTON_W, CANTON_H, STRIPE_DEPTH, cantonX, cantonY, STRIPE_DEPTH + 0.1, FLAG_BLUE);
 
 const starRows = [6, 5, 6, 5, 6, 5, 6, 5, 6];
 
@@ -228,13 +233,14 @@ for (let row = 0; row < starRows.length; row++) {
     for (let col = 0; col < count; col++) {
         let starX = flagLeft + (CANTON_W / 12) + (CANTON_W / 6) * col + offsetX;
         let starY = rowY;
-        const starZ = STRIPE_DEPTH / 2 + STAR_SIZE / 2 + 0.04;
+        const starZ = STRIPE_DEPTH + STAR_SIZE / 2 + 0.15;
 
         if (portrait) {
             const tmp = starX;
             starX = starY;
             starY = -tmp;
         }
+        starY += FLAG_Y_OFFSET;
 
         const mesh = new THREE.Mesh(starGeo, starMat);
         mesh.castShadow = true;
@@ -263,15 +269,8 @@ bodies.forEach(b => b.sleep());
 setTimeout(() => {
     physicsStarted = true;
     world.gravity.set(0, -BASE_GRAVITY, 0);
-    bodies.forEach(b => {
-        b.wakeUp();
-        b.velocity.set(
-            (Math.random() - 0.5) * 0.3,
-            (Math.random() - 0.5) * 0.1,
-            (Math.random() - 0.5) * 0.2
-        );
-    });
-    setTimeout(() => { gyroActive = true; }, 1500);
+    bodies.forEach(b => b.wakeUp());
+    setTimeout(() => { gyroActive = true; }, 2000);
 }, 1200);
 
 if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
@@ -409,7 +408,7 @@ function animate() {
     if (!dragConstraint) {
         camera.position.x = cameraOrigin.x + Math.sin(elapsed * 0.15) * 0.4;
         camera.position.y = cameraOrigin.y + Math.sin(elapsed * 0.1) * 0.2;
-        camera.lookAt(0, 1.5, 0);
+        camera.lookAt(0, 0.5, 0);
     }
 
     renderer.render(scene, camera);
